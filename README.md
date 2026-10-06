@@ -65,4 +65,29 @@ Se utilizan Open-Meteo Geocoding y Historical Weather API, sin dependencias adic
 - Los valores nulos se muestran como “Not available”; un día sin mediciones se trata como ausencia de datos.
 - La API proporciona datos de reanálisis; la disponibilidad depende de la fecha y del proveedor.
 
-No se incluyen Birthday Weather, comparación entre años, backend ni base de datos. No hay script de lint configurado; `npm run build` incluye la comprobación de TypeScript.
+Se incluye el modo Birthday Weather como explorador de fechas recurrentes. No se incluyen estadísticas agregadas, gráficos, backend ni base de datos. No hay script de lint configurado; `npm run build` incluye la comprobación de TypeScript.
+
+
+## Fechas recurrentes / Birthday Weather
+
+El selector **Un día / Mis cumpleaños** reutiliza ubicación, autocomplete y fecha. En el segundo modo, el día y mes se repiten desde el año de nacimiento. Cambiar de modo cancela la petición en curso y limpia el resultado anterior, conservando los campos; cambiar EN/ES conserva el resultado actual.
+
+`src/services/recurringWeather.ts` consulta un rango continuo con `start_date` y `end_date`, solicitando únicamente `weather_code`, `temperature_2m_min` y `temperature_2m_max`. Normalmente realiza **1 petición meteorológica**, incluso para 80+ años. Procesa la respuesta una vez y devuelve solo las fechas recurrentes; los días intermedios no llegan al estado de React. El volumen descargado crece con el rango (hasta unos 32 mil días desde 1940), aunque solo se renderiza una fila por año aplicable.
+
+Se consideran días terminados en la zona horaria de la ubicación; sin timezone se usa UTC para el corte y `auto` en la API. No se supone que ayer esté disponible. Si la API rechaza un extremo de los últimos cinco días, se hace **como máximo un segundo request** hasta la última repetición anterior a ese margen, conservando el año reciente como sin datos. No se reintenta por cada año ni se reintentan errores de red.
+
+- Se valida el año inicial desde 1940, las coordenadas, fechas reales y fechas futuras.
+- El **29 de febrero omite años no bisiestos**, sin mover la fecha.
+- Años ausentes, valores nulos o mediciones parciales se muestran sin datos o con las métricas disponibles. Una estructura global inválida sí produce un error accesible.
+- `endYear` indica el último año solicitado; `latestAvailableYear` indica el último con alguna medición. No se confunden rango solicitado y cobertura real.
+- El resultado usa fondo neutral, iconos SVG decorativos y una lista semántica con mínima y máxima etiquetadas. Todos los nuevos textos están en EN/ES.
+
+La estrategia utiliza los rangos diarios de la [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api). Una petición HTTP larga puede contar como varias unidades de uso para el proveedor; reducir requests no elimina sus límites de servicio.
+
+Pruebas del servicio, sin dependencias adicionales:
+
+```sh
+node --test tests/recurringWeather.test.mjs
+```
+
+Las pruebas cubren rangos largos, filtrado, bisiestos, huecos, respuestas parciales, validación, fechas recientes, cancelación y regresión del servicio de un día.

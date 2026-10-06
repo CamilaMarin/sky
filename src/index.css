@@ -179,3 +179,23 @@ h1, .intro { white-space: pre-line; }
 .language-selector button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--line); text-decoration: underline; text-underline-offset: 5px; }
 html[lang="es"] h1 { font-size: clamp(36px, 6.7vw, 72px); }
 @media (max-width: 375px) { .brand { font-size: 11px; gap: 6px; } .site-header { gap: 8px; padding-inline: 16px; } }
+
+.search-mode { display: flex; gap: 6px; max-width: 450px; margin: 0 auto 26px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; }
+.search-mode button { margin: 0; background: transparent; color: var(--text-secondary); padding: 10px 8px; font-size: 13px; }
+.search-mode button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.recurring-weather { margin-top: 42px; text-align: left; }
+.recurring-weather header { text-align: center; overflow-wrap: anywhere; }
+.recurring-weather h2 { font: 400 clamp(25px, 4vw, 34px)/1.3 Georgia, serif; }
+.recurring-list { list-style: none; margin: 28px 0 0; padding: 0; }
+.recurring-list li { display: grid; grid-template-columns: 45px 32px minmax(0, 1fr) minmax(130px, auto); gap: 14px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }
+.recurring-list time { font-weight: 600; }
+.recurring-list .weather-icon { width: 32px; height: 32px; margin: 0; }
+.recurring-condition { font-size: 14px; overflow-wrap: anywhere; }
+.recurring-list dl { display: flex; gap: 16px; }
+.recurring-list dl > div { flex: 1; min-width: 0; }
+.recurring-list dt { font-size: 11px; color: var(--text-secondary); }
+.recurring-list dd { font-size: 14px; margin-top: 5px; }
+@media (max-width: 540px) {
+  .recurring-list li { grid-template-columns: 45px 32px minmax(0, 1fr); gap: 12px; }
+  .recurring-list dl { grid-column: 2 / -1; }
+}

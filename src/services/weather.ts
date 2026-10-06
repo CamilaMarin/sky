@@ -70,6 +70,11 @@ export async function getHistoricalWeather(
     daily: [...Object.values(numericFields), 'sunrise', 'sunset'].join(','),
     temperature_unit: 'celsius', wind_speed_unit: 'kmh', precipitation_unit: 'mm',
   })
+  return parseWeather(await fetchArchive(params, signal), date)
+}
+
+/** Shared transport; services own validation and mapping of their responses. */
+export async function fetchArchive(params: URLSearchParams, signal?: AbortSignal): Promise<unknown> {
   let response: Response
   try {
     response = await fetch(`https://archive-api.open-meteo.com/v1/archive?${params}`, { signal })
@@ -80,5 +85,5 @@ export async function getHistoricalWeather(
   if (!response.ok) throw new WeatherError('unavailable')
   let data: unknown
   try { data = await response.json() } catch { throw new WeatherError('invalid') }
-  return parseWeather(data, date)
+  return data
 }

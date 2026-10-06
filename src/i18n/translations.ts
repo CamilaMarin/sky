@@ -2,6 +2,20 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  searchMode: "Search mode",
+  singleMode: "Single day",
+  recurringMode: "Birthday weather",
+  birthday: "Birthday",
+  recurringHint: "Choose your birth date. Its year is the starting year. Only completed days are queried; recent data may be unavailable.",
+  recurringDiscover: "Explore the years",
+  recurringTitle: "Your birthday through the years",
+  recurringLoading: "Looking through the years…",
+  recurringLoaded: "Weather through the years loaded.",
+  recurringEmpty: "No weather data is available for these dates yet. Try another date or try again later.",
+  yearUnavailable: "No data for this year",
+  leapNote: "February 29: only leap years are shown.",
+  recurringCoverage: "Requested years: {start}–{end}. Missing years are shown without data.",
+
   title: "How Was the Sky?",
   heading: "HOW WAS\nTHE SKY?",
   home: "How Was the Sky? Home",
@@ -81,6 +95,20 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  searchMode: "Modo de búsqueda",
+  singleMode: "Un día",
+  recurringMode: "Mis cumpleaños",
+  birthday: "Fecha de nacimiento",
+  recurringHint: "Elige tu fecha de nacimiento. Su año será el año inicial. Solo se consultan días terminados; los datos recientes pueden no estar disponibles.",
+  recurringDiscover: "Explorar los años",
+  recurringTitle: "Tus cumpleaños a través de los años",
+  recurringLoading: "Recorriendo los años…",
+  recurringLoaded: "Clima a través de los años cargado.",
+  recurringEmpty: "Aún no hay datos para estas fechas. Prueba otra fecha o inténtalo más tarde.",
+  yearUnavailable: "Sin datos para este año",
+  leapNote: "29 de febrero: solo se muestran años bisiestos.",
+  recurringCoverage: "Años consultados: {start}–{end}. Los años sin datos se indican en la lista.",
+
   title: "¿Cómo estaba el cielo?",
   heading: "¿CÓMO ESTABA\nEL CIELO?",
   home: "¿Cómo estaba el cielo? Inicio",

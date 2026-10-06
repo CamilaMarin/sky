@@ -1,3 +1,4 @@
+import type { SearchMode } from '../types/recurringWeather'
 import { useLanguage } from '../i18n/LanguageContext'
 import type { TranslationKey } from '../i18n/translations'
 import { useEffect, useRef, useState } from 'react'
@@ -12,9 +13,10 @@ function locationLabel(location: Location) {
 interface SearchFormProps {
   onSearch: (location: Location, date: string) => void
   isLoading: boolean
+  mode: SearchMode
 }
 
-export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
+export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProps) {
   const { language, t } = useLanguage()
   const [date, setDate] = useState('')
   const [message, setMessage] = useState<TranslationKey | ''>('')
@@ -151,12 +153,12 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           <p id="city-status" className="city-status" role="status">{expanded ? searchMessage : ''}</p>
         </div>
         <div className="field">
-          <label htmlFor="date">{t('date')}</label>
+          <label htmlFor="date">{t(mode === 'recurring' ? 'birthday' : 'date')}</label>
           <input id="date" name="date" type="date" min="1940-01-01" max={maxDate} value={date} onChange={event => setDate(event.target.value)} required />
         </div>
       </div>
-      <button type="submit" disabled={isLoading}>{t('discover')} <span aria-hidden="true">↗</span></button>
-      <p className="form-hint">{t('formHint')}</p>
+      <button type="submit" disabled={isLoading}>{t(mode === 'recurring' ? 'recurringDiscover' : 'discover')} <span aria-hidden="true">↗</span></button>
+      <p className="form-hint">{t(mode === 'recurring' ? 'recurringHint' : 'formHint')}</p>
       <p className="form-status" role="status">{message ? t(message) : ''}</p>
     </form>
   )
