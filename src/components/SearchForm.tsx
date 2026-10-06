@@ -7,7 +7,13 @@ function locationLabel(location: Location) {
   return [location.name, location.admin1, location.country ?? location.country_code].filter(Boolean).join(', ')
 }
 
-export default function SearchForm() {
+interface SearchFormProps {
+  onSearch: (location: Location, date: string) => void
+  isLoading: boolean
+}
+
+export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
+  const [date, setDate] = useState('')
   const [message, setMessage] = useState('')
   const [city, setCity] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
@@ -85,12 +91,18 @@ export default function SearchForm() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!selectedLocation) {
+    if (!selectedLocation || !Number.isFinite(selectedLocation.latitude) || !Number.isFinite(selectedLocation.longitude)) {
       setMessage('Select a city from the suggestions before continuing.')
       inputRef.current?.focus()
       return
     }
-    setMessage(`${locationLabel(selectedLocation)} selected. Historical weather search is coming soon.`)
+    if (!date || date > maxDate || date < '1940-01-01') {
+      setMessage('Choose a date between January 1, 1940 and today.')
+      return
+    }
+    if (isLoading) return
+    setMessage('')
+    onSearch(selectedLocation, date)
   }
 
   return (
@@ -134,11 +146,11 @@ export default function SearchForm() {
         </div>
         <div className="field">
           <label htmlFor="date">Date</label>
-          <input id="date" name="date" type="date" max={maxDate} required />
+          <input id="date" name="date" type="date" min="1940-01-01" max={maxDate} value={date} onChange={event => setDate(event.target.value)} required />
         </div>
       </div>
-      <button type="submit">Discover that day <span aria-hidden="true">↗</span></button>
-      <p className="form-hint">Choose a city and a date from today or the past.</p>
+      <button type="submit" disabled={isLoading}>Discover that day <span aria-hidden="true">↗</span></button>
+      <p className="form-hint">Select a city and a date from 1940 to today. Recent dates may not have data yet.</p>
       <p className="form-status" role="status">{message}</p>
     </form>
   )

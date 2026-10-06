@@ -60,3 +60,18 @@ button:hover { background: #213f52; }
 .city-suggestions li { padding: 12px; border-radius: 4px; cursor: pointer; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
 .city-suggestions li:hover { background: #eff5f8; }
 .city-suggestions li[aria-selected="true"] { background: #e1edf4; outline: 2px solid #2d5269; outline-offset: -2px; }
+
+button:disabled { cursor: wait; opacity: .65; }
+.weather-status, .weather-error { font-size: 14px; line-height: 1.6; }
+.weather-status:empty, .weather-error:empty { margin: 0; }
+.weather-error { color: #8b2929; }
+.weather-card { margin-top: 24px; padding: 28px; border: 1px solid #bdcdd6; border-radius: 20px; background: #ffffffd9; text-align: left; }
+.weather-card h2 { font-size: 23px; overflow-wrap: anywhere; }
+.weather-condition { font-size: 18px; }
+.weather-measurements { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.weather-measurements dt { font-size: 13px; color: #586e7c; }
+.weather-measurements dd { margin: 6px 0 0; font-size: 20px; }
+@media (max-width: 400px) {
+  .weather-card { padding: 20px; }
+  .weather-measurements { grid-template-columns: 1fr; }
+}

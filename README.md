@@ -30,10 +30,19 @@ npm run preview
 - `src/types/location.ts`: ubicación con coordenadas y metadatos opcionales.
 - `src/utils/`: reservada para próximas etapas.
 
-El formulario requiere seleccionar una ubicación real y una fecha hasta hoy, usando la fecha local. El autocompletado busca desde 2 caracteres tras 300 ms, limita los resultados a 5 y reutiliza consultas durante la sesión. Flechas recorren las opciones, Enter selecciona y Escape cierra la lista. Todavía no obtiene ni muestra datos meteorológicos.
+El formulario requiere seleccionar una ubicación real y una fecha hasta hoy, usando la fecha local. El autocompletado busca desde 2 caracteres tras 300 ms, limita los resultados a 5 y reutiliza consultas durante la sesión. Flechas recorren las opciones, Enter selecciona y Escape cierra la lista. App consulta el clima histórico al enviar el formulario y muestra una WeatherCard. Las fechas admitidas van desde 1940 hasta hoy; puede haber datos recientes no disponibles.
 
 ## Deployment futuro
 
 Vite utiliza `base: './'` para que los recursos compilados funcionen bajo la ruta de un repositorio de GitHub Pages. Esta etapa no configura ni publica un deployment. Más adelante se podrá publicar `dist/` mediante GitHub Actions.
 
-Se utiliza Open-Meteo Geocoding; no se incluyen Historical Weather API, WeatherCard, animaciones, Birthday Weather ni backend.
+Se utilizan Open-Meteo Geocoding y Historical Weather API, sin dependencias adicionales.
+
+- `src/services/weather.ts` valida la respuesta y la transforma a `HistoricalWeather` (`src/types/weather.ts`).
+- `App` mantiene carga, éxito y error, y cancela consultas reemplazadas o al desmontarse.
+- `WeatherCard` solo presenta datos; las utilidades resuelven códigos WMO, unidades, duración de sol y horas locales.
+- Si falta timezone en la ubicación se usa `auto` para resolverla a partir de sus coordenadas.
+- Los valores nulos se muestran como “Not available”; un día sin mediciones se trata como ausencia de datos.
+- La API proporciona datos de reanálisis; la disponibilidad depende de la fecha y del proveedor.
+
+No se incluyen animaciones, Birthday Weather, comparación entre años, backend ni base de datos. No hay script de lint configurado; `npm run build` incluye la comprobación de TypeScript.
