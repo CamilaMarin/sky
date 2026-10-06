@@ -2,6 +2,26 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  statsTitle: "Your birthdays at a glance",
+  explored: "{count} birthdays explored",
+  statsCoverage: "{with} years with data · {without} without data",
+  warmest: "Warmest birthday",
+  coldest: "Coldest birthday",
+  commonWeather: "Most common weather",
+  averageHigh: "Average high",
+  averageLow: "Average low",
+  yearsTitle: "Weather through the years",
+  noData: "No data",
+  distributionTitle: "Weather distribution",
+  distributionBasis: "Based on {count} years with a recognized weather code. Missing or unknown codes are excluded.",
+  themeClear: "Clear",
+  themeCloudy: "Cloudy",
+  themeRain: "Rain",
+  themeSnow: "Snow",
+  themeStorm: "Storm",
+  themeFog: "Fog",
+  themeNeutral: "Neutral",
+
   searchMode: "Search mode",
   singleMode: "Single day",
   recurringMode: "Birthday weather",
@@ -95,6 +115,26 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  statsTitle: "Tus cumpleaños de un vistazo",
+  explored: "{count} cumpleaños explorados",
+  statsCoverage: "{with} años con datos · {without} sin datos",
+  warmest: "Cumpleaños más cálido",
+  coldest: "Cumpleaños más frío",
+  commonWeather: "Clima más frecuente",
+  averageHigh: "Máxima promedio",
+  averageLow: "Mínima promedio",
+  yearsTitle: "El clima a través de los años",
+  noData: "Sin datos",
+  distributionTitle: "Distribución del clima",
+  distributionBasis: "Basado en {count} años con un código meteorológico reconocido. Se excluyen los códigos ausentes o desconocidos.",
+  themeClear: "Despejado",
+  themeCloudy: "Nublado",
+  themeRain: "Lluvia",
+  themeSnow: "Nieve",
+  themeStorm: "Tormenta",
+  themeFog: "Niebla",
+  themeNeutral: "Neutral",
+
   searchMode: "Modo de búsqueda",
   singleMode: "Un día",
   recurringMode: "Mis cumpleaños",

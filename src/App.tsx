@@ -1,3 +1,5 @@
+import { getRecurringWeatherStats } from './utils/recurringWeatherStats'
+import type { RecurringWeatherStats } from './types/recurringWeatherStats'
 import RecurringWeather from './components/RecurringWeather'
 import { getRecurringWeather } from './services/recurringWeather'
 import type { RecurringWeatherResult, SearchMode } from './types/recurringWeather'
@@ -17,7 +19,7 @@ import type { HistoricalWeather } from './types/weather'
 type WeatherState =
   | { status: 'idle' | 'loading' }
   | { status: 'success'; kind: 'single'; weather: HistoricalWeather; location: Location }
-  | { status: 'success'; kind: 'recurring'; result: RecurringWeatherResult; location: Location }
+  | { status: 'success'; kind: 'recurring'; result: RecurringWeatherResult; stats: RecurringWeatherStats; location: Location }
   | { status: 'error'; message: TranslationKey }
 
 export default function App() {
@@ -37,7 +39,7 @@ export default function App() {
         const [startYear, month, day] = date.split('-').map(Number)
         const result = await getRecurringWeather({ latitude: location.latitude, longitude: location.longitude,
           timezone: location.timezone || 'auto', startYear, month, day }, controller.signal)
-        if (!controller.signal.aborted) setState({ status: 'success', kind: 'recurring', result, location })
+        if (!controller.signal.aborted) setState({ status: 'success', kind: 'recurring', result, stats: getRecurringWeatherStats(result), location })
         return
       }
       const weather = await getHistoricalWeather({
@@ -64,11 +66,11 @@ export default function App() {
           <WeatherIcon theme="neutral" />
           <span>{t('title')}</span>
         </a>
-        <span className="header-note">{t('tagline')}</span>
         <LanguageSelector />
       </header>
 
       <main id="main-content" className="main-content">
+        <p className="header-note">{t('tagline')}</p>
         <p className="eyebrow">{t('eyebrow')}</p>
         <h1>{t('heading')}</h1>
         <p className="intro">{t('intro')}</p>
@@ -89,7 +91,7 @@ export default function App() {
         <section aria-label={t('result')} aria-busy={state.status === 'loading'}>
           {state.status === 'success' && (state.kind === 'single'
             ? <WeatherCard weather={state.weather} location={state.location} />
-            : <RecurringWeather result={state.result} location={state.location} />)}
+            : <RecurringWeather result={state.result} stats={state.stats} location={state.location} />)}
         </section>
         <p className="memory-note">{t('memory')}</p>
       </main>

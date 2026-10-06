@@ -65,7 +65,7 @@ Se utilizan Open-Meteo Geocoding y Historical Weather API, sin dependencias adic
 - Los valores nulos se muestran como “Not available”; un día sin mediciones se trata como ausencia de datos.
 - La API proporciona datos de reanálisis; la disponibilidad depende de la fecha y del proveedor.
 
-Se incluye el modo Birthday Weather como explorador de fechas recurrentes. No se incluyen estadísticas agregadas, gráficos, backend ni base de datos. No hay script de lint configurado; `npm run build` incluye la comprobación de TypeScript.
+Se incluye el modo Birthday Weather como explorador de fechas recurrentes. Se incluye un resumen estadístico con barras CSS, sin librerías de gráficos, backend ni base de datos. No hay script de lint configurado; `npm run build` incluye la comprobación de TypeScript.
 
 
 ## Fechas recurrentes / Birthday Weather
@@ -91,3 +91,22 @@ node --test tests/recurringWeather.test.mjs
 ```
 
 Las pruebas cubren rangos largos, filtrado, bisiestos, huecos, respuestas parciales, validación, fechas recientes, cancelación y regresión del servicio de un día.
+
+
+## Estadísticas recurrentes
+
+`getRecurringWeatherStats` es una función pura en `src/utils/recurringWeatherStats.ts`. App la ejecuta al recibir el resultado y pasa su modelo a la presentación; cambiar de idioma no repite los cálculos.
+
+- `totalYears` cuenta entradas, no el intervalo entre años (los no bisiestos omitidos no cuentan).
+- Un año tiene datos si contiene una temperatura finita o un código reconocido. Un objeto con todas las mediciones ausentes no cuenta como dato.
+- Récord cálido: máxima; récord frío: mínima. Los empates eligen el año más antiguo.
+- Cada promedio utiliza solo sus temperaturas disponibles, sin convertir `null` en cero. Sin muestras devuelve `null`; también se ignoran NaN e infinitos.
+- Distribución: reutiliza `getWeatherTheme`. Solo los códigos reconocidos forman el denominador; nulos y desconocidos quedan excluidos. Se conserva la categoría neutral con cero casos (porcentaje nulo si no hay ningún código clasificable).
+- Clima más frecuente: empate resuelto con prioridad explícita `clear`, `cloudy`, `rain`, `snow`, `storm`, `fog`, `neutral`; sin códigos válidos devuelve `null`.
+- Los porcentajes conservan precisión en el modelo y se redondean solo al mostrarse; pueden no sumar exactamente 100% por redondeo.
+
+Ejecuta todas las pruebas existentes y de estadísticas:
+
+```sh
+node --test tests/*.test.mjs
+```
