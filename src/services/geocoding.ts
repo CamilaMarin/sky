@@ -1,3 +1,4 @@
+import type { Language } from '../i18n/translations'
 import type { Location } from '../types/location'
 
 interface GeocodingResponse {
@@ -5,11 +6,11 @@ interface GeocodingResponse {
   error?: boolean
 }
 
-export async function searchLocations(name: string, signal?: AbortSignal): Promise<Location[]> {
+export async function searchLocations(name: string, signal?: AbortSignal, language: Language = 'en'): Promise<Location[]> {
   const query = name.trim()
   if (query.length < 2) return []
 
-  const params = new URLSearchParams({ name: query, count: '5', language: 'en', format: 'json' })
+  const params = new URLSearchParams({ name: query, count: '5', language, format: 'json' })
   const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`, { signal })
   if (!response.ok) throw new Error('Unable to search cities.')
 

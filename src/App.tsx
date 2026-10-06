@@ -1,3 +1,6 @@
+import { useLanguage } from './i18n/LanguageContext'
+import type { TranslationKey } from './i18n/translations'
+import LanguageSelector from './components/LanguageSelector'
 import { useEffect, useRef, useState } from 'react'
 import WeatherAtmosphere from './components/WeatherAtmosphere'
 import WeatherIcon from './components/WeatherIcon'
@@ -11,9 +14,10 @@ import type { HistoricalWeather } from './types/weather'
 type WeatherState =
   | { status: 'idle' | 'loading' }
   | { status: 'success'; weather: HistoricalWeather; location: Location }
-  | { status: 'error'; message: string }
+  | { status: 'error'; message: TranslationKey }
 
 export default function App() {
+  const { t } = useLanguage()
   const [state, setState] = useState<WeatherState>({ status: 'idle' })
   const request = useRef<AbortController | null>(null)
   useEffect(() => () => request.current?.abort(), [])
@@ -31,11 +35,11 @@ export default function App() {
       if (!controller.signal.aborted) setState({ status: 'success', weather, location })
     } catch (error) {
       if (controller.signal.aborted) return
-      const message = error instanceof WeatherError && error.kind === 'network'
-        ? 'We could not connect. Check your internet connection and try again.'
+      const message: TranslationKey = error instanceof WeatherError && error.kind === 'network'
+        ? 'networkError'
         : error instanceof WeatherError && error.kind === 'unavailable'
-          ? 'Weather data is unavailable for this date right now. Try another date or try again later.'
-          : 'We could not read the weather data. Please try again later.'
+          ? 'unavailableError'
+          : 'invalidError'
       setState({ status: 'error', message })
     }
   }
@@ -44,29 +48,30 @@ export default function App() {
     <div className="page" data-weather={theme}>
       <WeatherAtmosphere theme={theme} />
       <header className="site-header">
-        <a className="brand" href="#main-content" aria-label="How Was the Sky? Home">
+        <a className="brand" href="#main-content" aria-label={t('home')}>
           <WeatherIcon theme="neutral" />
-          <span>How Was the Sky?</span>
+          <span>{t('title')}</span>
         </a>
-        <span className="header-note">A little trip back in time</span>
+        <span className="header-note">{t('tagline')}</span>
+        <LanguageSelector />
       </header>
 
       <main id="main-content" className="main-content">
-        <p className="eyebrow">A window into a day you remember</p>
-        <h1>HOW WAS<br />THE SKY?</h1>
-        <p className="intro">Discover what the weather was<br />on a day that matters to you.</p>
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <h1>{t('heading')}</h1>
+        <p className="intro">{t('intro')}</p>
         <SearchForm onSearch={handleSearch} isLoading={state.status === 'loading'} />
         <p role="status" className="weather-status">
-          {state.status === 'loading' ? 'Loading historical weather…' : state.status === 'success' ? 'Historical weather loaded.' : ''}
+          {state.status === 'loading' ? t('loading') : state.status === 'success' ? t('loaded') : ''}
         </p>
-        <p role="alert" className="weather-error">{state.status === 'error' ? state.message : ''}</p>
-        <section aria-label="Historical weather result" aria-busy={state.status === 'loading'}>
+        <p role="alert" className="weather-error">{state.status === 'error' ? t(state.message) : ''}</p>
+        <section aria-label={t('result')} aria-busy={state.status === 'loading'}>
           {state.status === 'success' && <WeatherCard weather={state.weather} location={state.location} />}
         </section>
-        <p className="memory-note">A place. A date. A moment to rediscover.</p>
+        <p className="memory-note">{t('memory')}</p>
       </main>
 
-      <footer className="site-footer">Looking back, one sky at a time.</footer>
+      <footer className="site-footer">{t('footer')}</footer>
     </div>
   )
 }

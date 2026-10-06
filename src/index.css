@@ -172,3 +172,10 @@ dd { margin: 0; }
   .weather-atmosphere::before, .weather-atmosphere::after,
   .weather-atmosphere .atmosphere-particle { animation: none; transform: none; }
 }
+
+h1, .intro { white-space: pre-line; }
+.language-selector { display: flex; gap: 4px; flex-shrink: 0; }
+.language-selector button { width: auto; min-width: 40px; min-height: 44px; padding: 8px; margin: 0; background: transparent; color: var(--text-secondary); font-size: 12px; }
+.language-selector button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--line); text-decoration: underline; text-underline-offset: 5px; }
+html[lang="es"] h1 { font-size: clamp(36px, 6.7vw, 72px); }
+@media (max-width: 375px) { .brand { font-size: 11px; gap: 6px; } .site-header { gap: 8px; padding-inline: 16px; } }
