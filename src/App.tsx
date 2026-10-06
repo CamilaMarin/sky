@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import WeatherIcon from './components/WeatherIcon'
+import { getWeatherTheme } from './utils/weatherTheme'
 import SearchForm from './components/SearchForm'
 import WeatherCard from './components/WeatherCard'
 import { getHistoricalWeather, WeatherError } from './services/weather'
@@ -37,24 +39,19 @@ export default function App() {
     }
   }
   return (
-    <div className="page">
+    <div className="page" data-weather={state.status === 'success' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'}>
       <header className="site-header">
         <a className="brand" href="#main-content" aria-label="How Was the Sky? Home">
-          <span className="brand-sun" aria-hidden="true">☀</span>
+          <WeatherIcon theme="neutral" />
           <span>How Was the Sky?</span>
         </a>
         <span className="header-note">A little trip back in time</span>
       </header>
 
       <main id="main-content" className="main-content">
-        <div className="sky-illustration" aria-hidden="true">
-          <div className="sun" />
-          <div className="cloud cloud-back" />
-          <div className="cloud cloud-front" />
-        </div>
-        <p className="eyebrow">Every day has a sky</p>
-        <h1>How Was the Sky?</h1>
-        <p className="intro">Discover what the weather was on a day that matters to you.</p>
+        <p className="eyebrow">A window into a day you remember</p>
+        <h1>HOW WAS<br />THE SKY?</h1>
+        <p className="intro">Discover what the weather was<br />on a day that matters to you.</p>
         <SearchForm onSearch={handleSearch} isLoading={state.status === 'loading'} />
         <p role="status" className="weather-status">
           {state.status === 'loading' ? 'Loading historical weather…' : state.status === 'success' ? 'Historical weather loaded.' : ''}

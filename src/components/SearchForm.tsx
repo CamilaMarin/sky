@@ -109,7 +109,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     <form className="search-form" onSubmit={handleSubmit} onChange={() => setMessage('')} aria-label="Find weather for a past date">
       <div className="form-fields">
         <div className="field city-field">
-          <label htmlFor="city">City</label>
+          <label htmlFor="city">Location</label>
           <input
             ref={inputRef} id="city" name="city" type="text"
             placeholder="Where did it happen?" autoComplete="off" required
