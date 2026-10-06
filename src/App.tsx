@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import WeatherAtmosphere from './components/WeatherAtmosphere'
 import WeatherIcon from './components/WeatherIcon'
 import { getWeatherTheme } from './utils/weatherTheme'
 import SearchForm from './components/SearchForm'
@@ -38,8 +39,10 @@ export default function App() {
       setState({ status: 'error', message })
     }
   }
+  const theme = state.status === 'success' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'
   return (
-    <div className="page" data-weather={state.status === 'success' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'}>
+    <div className="page" data-weather={theme}>
+      <WeatherAtmosphere theme={theme} />
       <header className="site-header">
         <a className="brand" href="#main-content" aria-label="How Was the Sky? Home">
           <WeatherIcon theme="neutral" />
