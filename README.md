@@ -413,8 +413,8 @@ horizontal y con target de 44 px. Validación final: 40 tests aprobados,
 
 Single Day y Birthday Weather ofrecen «Preview card» / «Ver tarjeta» junto a
 compartir. La acción abre un diálogo sin navegar, modificar la URL ni consultar
-APIs adicionales. Esta etapa es **solo preview**: no genera imágenes, no descarga
-archivos y no comparte archivos. La exportación de imagen será una etapa independiente.
+APIs adicionales. Desde el diálogo se puede guardar la tarjeta como PNG; los detalles
+de generación local se describen al final de este documento.
 
 ### Composición y datos
 
@@ -512,3 +512,32 @@ prioridad exacta de comunas, Ñuñoa/Perú, país uniforme, IDs entre proveedore
 administrativo, categorías desconocidas y dos San Miguel distantes que sobreviven.
 Se conservan los tests de fuzzy, cancelación, fallback, fechas y URLs compartibles.
 No se modificaron share cards ni servicios de weather fetching.
+
+### Guardar share cards como PNG
+
+En el preview, **Guardar imagen / Save image** descarga únicamente la tarjeta,
+con resolución fija **1080 × 1350 px (4:5)**. Se genera localmente en el navegador;
+la imagen no se sube a ningún servidor. El preview sigue siendo responsive.
+
+La captura utiliza `html-to-image` 1.11.13 (MIT), cargado bajo demanda. Una copia
+temporal del DOM de la tarjeta se compone a 1080 px de ancho con los mismos estilos,
+SVG y gradientes; `pixelRatio: 1` evita que la resolución dependa de la pantalla.
+Se espera `document.fonts.ready`; las fuentes actuales son fuentes del sistema y
+Georgia, sin fuentes externas. Su apariencia puede variar entre sistemas operativos.
+La generación devuelve un PNG `Blob` y la descarga es una operación separada.
+Los nodos temporales se eliminan incluso si falla la captura y las object URLs de
+descarga se revocan tras 30 segundos para dar tiempo al navegador a consumirlas.
+
+Se eligió html-to-image porque conserva el renderizado CSS del navegador mediante
+SVG/foreignObject. html2canvas interpreta una parte del CSS en su propio renderer;
+una implementación propia requeriría mantener clonación y compatibilidad. No se
+mantiene una segunda composición ni una segunda paleta para exportar.
+
+Verificación de esta etapa: 110 capturas en Chrome con DPR 2 y otras 110 en el
+navegador integrado, combinando EN/ES, los cinco anchos 320/375/768/1024/1440,
+temas y valores ausentes. Todas devolvieron 1080 × 1350 según la cabecera PNG.
+Se compararon visualmente preview y PNG sin cambios de composición aparentes.
+Safari real sigue pendiente de validación: la estrategia utiliza APIs estables,
+pero la compatibilidad de foreignObject debe comprobarse en el navegador objetivo.
+El feedback de descarga confirma que se inició la descarga, no que el usuario
+haya terminado de guardar el archivo en disco.

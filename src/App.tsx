@@ -1,3 +1,4 @@
+import { shareCardFilename } from './utils/shareCardFilename'
 import ShareCardPreview from './components/share/ShareCardPreview'
 import { buildSingleDayShareCardData, buildBirthdayShareCardData } from './utils/shareCardData'
 import ShareButton from './components/ShareButton'
@@ -110,7 +111,7 @@ export default function App() {
     : buildBirthdayShareCardData(state.result, state.stats, state.location, language)) : null
   const shareAction = cardData ? <div className="result-actions">
     {shareContent && <ShareButton key={`${shareContent.url}:${language}`} content={shareContent} />}
-    <ShareCardPreview data={cardData} />
+    {state.status === 'success' && <ShareCardPreview data={cardData} filename={shareCardFilename(state.location.name, state.kind === 'single' ? 'single' : 'birthday', state.kind === 'single' ? state.weather.date : String(state.result.startYear))} />}
   </div> : undefined
   const theme = state.status === 'success' && state.kind === 'single' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'
   return (

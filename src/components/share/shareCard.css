@@ -52,3 +52,6 @@
   .share-card-dialog { padding: 12px; }
   .share-card-dialog .share-card-dialog-heading h2 { font-size: 21px; }
 }
+.share-card-export-actions { margin-top: 16px; }
+.share-card-export-actions button { margin: 0; background: #36576a; color: #fff; border-color: #36576a; }
+.share-card-export-actions p { min-height: 1.5em; margin: 8px 0 0; font-size: 13px; color: #506471; }
