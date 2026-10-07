@@ -3,7 +3,7 @@ import type { Location } from '../types/location'
 import { searchLocations, type LocationSearchResult } from './geocoding'
 import { searchGazetteer } from './gazetteer'
 import { normalizeSearchText } from '../utils/searchNormalization'
-import { rankLocations, scoreLocation } from '../utils/searchMatching'
+import { getLocationCategory, rankLocations, scoreLocation } from '../utils/searchMatching'
 
 function nearby(a: Location, b: Location): boolean {
   const radians = Math.PI / 180
@@ -13,18 +13,34 @@ function nearby(a: Location, b: Location): boolean {
   return 12742 * Math.asin(Math.sqrt(Math.min(1, h))) <= 1
 }
 
+function sameAdministrativeArea(a: Location, b: Location): boolean {
+  if (a.admin3_id && b.admin3_id && a.admin3_id !== b.admin3_id) return false
+  if (a.admin1_id && b.admin1_id) return a.admin1_id === b.admin1_id
+  return !!a.admin1 && !!b.admin1 && normalizeSearchText(a.admin1) === normalizeSearchText(b.admin1)
+}
+
 export function mergeLocations(query: string, provider: Location[], local: Location[]): Location[] {
   // Rank before deduplication so a translated provider label cannot hide an exact local match.
-  const ranked = rankLocations(query, [...provider, ...local], false)
+  const ranked = rankLocations(query, [...provider, ...local], false).sort((a, b) => {
+    // Category only refines exact ties; it never outranks a better text match.
+    if (scoreLocation(query, a).tier !== 0 || scoreLocation(query, b).tier !== 0) return 0
+    return Number(getLocationCategory(b) === 'commune') - Number(getLocationCategory(a) === 'commune')
+  })
   const merged: Location[] = []
   for (const candidate of ranked) {
     const existing = merged.find(item => item.id === candidate.id || (item.country_code && candidate.country_code
       && item.country_code.toUpperCase() === candidate.country_code.toUpperCase()
+      && getLocationCategory(item) !== null && getLocationCategory(item) === getLocationCategory(candidate)
+      && sameAdministrativeArea(item, candidate)
       && normalizeSearchText(item.name) === normalizeSearchText(candidate.name) && nearby(item, candidate)))
     if (existing) {
       existing.timezone ??= candidate.timezone
       existing.admin1 ??= candidate.admin1
       existing.country ??= candidate.country
+      existing.feature_code ??= candidate.feature_code
+      existing.feature_class ??= candidate.feature_class
+      existing.admin1_id ??= candidate.admin1_id
+      existing.admin3_id ??= candidate.admin3_id
     } else merged.push({ ...candidate })
   }
   return merged.slice(0, 5)

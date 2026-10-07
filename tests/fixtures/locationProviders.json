@@ -1,0 +1,319 @@
+{
+  "Quinta Normal": [
+    {
+      "id": 3873992,
+      "name": "Quinta Normal",
+      "country": "Chile",
+      "country_code": "CL",
+      "admin1": "Región Metropolitana de Santiago de Chile",
+      "admin1_id": 3873544,
+      "admin3_id": 8261400,
+      "latitude": -33.44186,
+      "longitude": -70.67899,
+      "feature_code": "PPLX",
+      "timezone": "America/Santiago"
+    }
+  ],
+  "Ñuñoa": [
+    {
+      "id": 3878431,
+      "name": "Ñuñoa",
+      "country": "Chile",
+      "country_code": "CL",
+      "admin1": "Región Metropolitana de Santiago de Chile",
+      "admin1_id": 3873544,
+      "admin3_id": 8261178,
+      "latitude": -33.44735,
+      "longitude": -70.58279,
+      "feature_code": "PPLX",
+      "timezone": "America/Santiago"
+    },
+    {
+      "id": 3934233,
+      "name": "Nuñoa",
+      "country": "Perú",
+      "country_code": "PE",
+      "admin1": "Puno",
+      "admin1_id": 3931275,
+      "admin3_id": 8349891,
+      "latitude": -14.4775,
+      "longitude": -70.63642,
+      "feature_code": "PPL",
+      "timezone": "America/Lima"
+    }
+  ],
+  "Pudahuel": [],
+  "Cerro Navia": [],
+  "Estación Central": [
+    {
+      "id": 3895950,
+      "name": "Central",
+      "country": "Chile",
+      "country_code": "CL",
+      "admin1": "Región de Arica y Parinacota",
+      "admin1_id": 6693562,
+      "admin3_id": 8261387,
+      "latitude": -18.36027,
+      "longitude": -69.958,
+      "feature_code": "PPLX",
+      "timezone": "America/Santiago"
+    }
+  ],
+  "Providencia": [
+    {
+      "id": 6377798,
+      "name": "Providencia",
+      "country": "Perú",
+      "country_code": "PE",
+      "admin1": "Departamento de Amazonas",
+      "admin1_id": 3699699,
+      "admin3_id": 8351360,
+      "latitude": -6.2975,
+      "longitude": -78.24,
+      "feature_code": "PPLA3",
+      "timezone": "America/Lima"
+    },
+    {
+      "id": 3688504,
+      "name": "Providencia",
+      "country": "Colombia",
+      "country_code": "CO",
+      "admin1": "Nariño",
+      "admin1_id": 3674021,
+      "latitude": 1.23907,
+      "longitude": -77.59721,
+      "feature_code": "PPLA2",
+      "timezone": "America/Bogota"
+    },
+    {
+      "id": 3655025,
+      "name": "La Providencia",
+      "country": "Ecuador",
+      "country_code": "EC",
+      "admin1": "Provincia de Chimborazo",
+      "admin1_id": 3659237,
+      "admin3_id": 10792827,
+      "latitude": -1.55206,
+      "longitude": -78.54326,
+      "feature_code": "PPLA3",
+      "timezone": "America/Guayaquil"
+    },
+    {
+      "id": 3875139,
+      "name": "Providencia",
+      "country": "Chile",
+      "country_code": "CL",
+      "admin1": "Región Metropolitana de Santiago de Chile",
+      "admin1_id": 3873544,
+      "admin3_id": 8261414,
+      "latitude": -33.43107,
+      "longitude": -70.60454,
+      "feature_code": "PPLA3",
+      "timezone": "America/Santiago"
+    },
+    {
+      "id": 3460962,
+      "name": "Itabi",
+      "country": "Brasil",
+      "country_code": "BR",
+      "admin1": "Estado de Sergipe",
+      "admin1_id": 3447799,
+      "latitude": -10.12639,
+      "longitude": -37.10306,
+      "feature_code": "PPL",
+      "timezone": "America/Maceio"
+    }
+  ],
+  "La Florida": [
+    {
+      "id": 3558771,
+      "name": "Florida",
+      "country": "Cuba",
+      "country_code": "CU",
+      "admin1": "Provincia de Camagüey",
+      "admin1_id": 3566062,
+      "latitude": 21.52536,
+      "longitude": -78.22579,
+      "feature_code": "PPLA2",
+      "timezone": "America/Havana"
+    },
+    {
+      "id": 3594423,
+      "name": "La Libertad",
+      "country": "Guatemala",
+      "country_code": "GT",
+      "admin1": "Departamento de Huehuetenango",
+      "admin1_id": 3595415,
+      "latitude": 15.51421,
+      "longitude": -91.86944,
+      "feature_code": "PPLA2",
+      "timezone": "America/Guatemala"
+    },
+    {
+      "id": 3679007,
+      "name": "La Florida",
+      "country": "Colombia",
+      "country_code": "CO",
+      "admin1": "Nariño",
+      "admin1_id": 3674021,
+      "latitude": 1.29851,
+      "longitude": -77.40614,
+      "feature_code": "PPLA2",
+      "timezone": "America/Bogota"
+    },
+    {
+      "id": 3697007,
+      "name": "La Florida",
+      "country": "Perú",
+      "country_code": "PE",
+      "admin1": "Departamento de Cajamarca",
+      "admin1_id": 3699087,
+      "admin3_id": 8351283,
+      "latitude": -6.86901,
+      "longitude": -79.12253,
+      "feature_code": "PPLA3",
+      "timezone": "America/Lima"
+    },
+    {
+      "id": 2515960,
+      "name": "La Florida",
+      "country": "España",
+      "country_code": "ES",
+      "admin1": "Comunidad Valenciana",
+      "admin1_id": 2593113,
+      "admin3_id": 6355440,
+      "latitude": 38.12456,
+      "longitude": -0.771,
+      "feature_code": "PPL",
+      "timezone": "Europe/Madrid"
+    }
+  ],
+  "San Miguel": [
+    {
+      "id": 3701329,
+      "name": "San Miguelito",
+      "country": "Panamá",
+      "country_code": "PA",
+      "admin1": "Provincia de Panamá",
+      "admin1_id": 3703433,
+      "admin3_id": 3708337,
+      "latitude": 9.05032,
+      "longitude": -79.47068,
+      "feature_code": "PPLA2",
+      "timezone": "America/Panama"
+    },
+    {
+      "id": 3583446,
+      "name": "San Miguel",
+      "country": "El Salvador",
+      "country_code": "SV",
+      "admin1": "Departamento de San Miguel",
+      "admin1_id": 3583462,
+      "latitude": 13.48261,
+      "longitude": -88.18211,
+      "feature_code": "PPLA",
+      "timezone": "America/El_Salvador"
+    },
+    {
+      "id": 7645166,
+      "name": "San Miguel",
+      "country": "Argentina",
+      "country_code": "AR",
+      "admin1": "Buenos Aires",
+      "admin1_id": 3435907,
+      "latitude": -34.54335,
+      "longitude": -58.71229,
+      "feature_code": "PPL",
+      "timezone": "America/Argentina/Buenos_Aires"
+    },
+    {
+      "id": 3110245,
+      "name": "San Miguel de Serrezuela",
+      "country": "España",
+      "country_code": "ES",
+      "admin1": "Comunidad Autónoma de Castilla y León",
+      "admin1_id": 3336900,
+      "admin3_id": 6355816,
+      "latitude": 40.67064,
+      "longitude": -5.28857,
+      "feature_code": "PPLA3",
+      "timezone": "Europe/Madrid"
+    },
+    {
+      "id": 3117884,
+      "name": "Lobios",
+      "country": "España",
+      "country_code": "ES",
+      "admin1": "Comunidad Autónoma de Galicia",
+      "admin1_id": 3336902,
+      "admin3_id": 6359860,
+      "latitude": 41.87493,
+      "longitude": -8.08783,
+      "feature_code": "PPLA3",
+      "timezone": "Europe/Madrid"
+    }
+  ],
+  "Maipú": [
+    {
+      "id": 3880980,
+      "name": "Maipú",
+      "country": "Chile",
+      "country_code": "CL",
+      "admin1": "Región Metropolitana de Santiago de Chile",
+      "admin1_id": 3873544,
+      "admin3_id": 8261434,
+      "latitude": -33.51421,
+      "longitude": -70.7651,
+      "feature_code": "PPL",
+      "timezone": "America/Santiago"
+    },
+    {
+      "id": 3430946,
+      "name": "Maipú",
+      "country": "Argentina",
+      "country_code": "AR",
+      "admin1": "Buenos Aires",
+      "admin1_id": 3435907,
+      "latitude": -36.86296,
+      "longitude": -57.88312,
+      "feature_code": "PPLA2",
+      "timezone": "America/Argentina/Buenos_Aires"
+    },
+    {
+      "id": 3845247,
+      "name": "Maipú",
+      "country": "Argentina",
+      "country_code": "AR",
+      "admin1": "Provincia de Mendoza",
+      "admin1_id": 3844419,
+      "latitude": -32.98462,
+      "longitude": -68.78821,
+      "feature_code": "PPLA2",
+      "timezone": "America/Argentina/Mendoza"
+    },
+    {
+      "id": 10211823,
+      "name": "Maipu",
+      "country": "China",
+      "country_code": "CN",
+      "admin1": "Sichuan",
+      "admin1_id": 1794299,
+      "latitude": 28.9303,
+      "longitude": 101.548,
+      "feature_code": "PPL",
+      "timezone": "Asia/Shanghai"
+    },
+    {
+      "id": 12747525,
+      "name": "Maipú",
+      "country": "Argentina",
+      "country_code": "AR",
+      "admin1": "Provincia del Chaco",
+      "admin1_id": 3861887,
+      "latitude": -27.02212,
+      "longitude": -58.70794,
+      "feature_code": "PPL",
+      "timezone": "America/Argentina/Cordoba"
+    }
+  ]
+}

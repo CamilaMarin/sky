@@ -223,3 +223,5 @@ html[lang="es"] h1 { font-size: clamp(36px, 6.7vw, 72px); }
 .share-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: auto; max-width: 100%; min-height: 44px; margin: 0; padding: 10px 14px; border-color: var(--line); background: transparent; color: var(--text-primary); font-weight: 500; }
 .share-button svg { flex-shrink: 0; }
 .share-feedback { min-height: 1.5em; margin: 6px 0 0; font-size: 12px; color: var(--text-secondary); overflow-wrap: anywhere; }
+
+.location-context { display: block; margin-top: 3px; font-size: .85em; color: var(--text-secondary); overflow-wrap: anywhere; }

@@ -4,22 +4,26 @@ import { rankLocations, scoreLocation } from '../utils/searchMatching'
 
 export interface GazetteerLocation extends Location { country_code: string; timezone: string }
 
-/** Compact versioned tuples: id, name, latitude, longitude, region code, timezone. */
+/** Compact versioned tuples: id, name, latitude, longitude, region code, timezone; v2 adds feature class/code and administrative IDs. */
 export function parseGazetteer(value: unknown): GazetteerLocation[] {
   if (!value || typeof value !== 'object') throw new Error('Invalid gazetteer')
   const data = value as Record<string, unknown>
-  if (data.version !== 1 || typeof data.countryCode !== 'string' || !/^[A-Z]{2}$/.test(data.countryCode)
+  if ((data.version !== 1 && data.version !== 2) || typeof data.countryCode !== 'string' || !/^[A-Z]{2}$/.test(data.countryCode)
     || !data.regions || typeof data.regions !== 'object' || !Array.isArray(data.locations)) throw new Error('Invalid gazetteer')
   const regions = data.regions as Record<string, unknown>
   const seen = new Set<number>()
   return data.locations.map((row: unknown) => {
-    if (!Array.isArray(row) || row.length !== 6) throw new Error('Invalid gazetteer row')
-    const [id, name, latitude, longitude, region, timezone] = row
+    if (!Array.isArray(row) || row.length !== (data.version === 2 ? 10 : 6)) throw new Error('Invalid gazetteer row')
+    const [id, name, latitude, longitude, region, timezone, featureClass, featureCode, admin1Id, admin3Id] = row
     if (!Number.isSafeInteger(id) || id <= 0 || seen.has(id) || typeof name !== 'string' || !name.trim()
       || !Number.isFinite(latitude) || Math.abs(latitude) > 90 || !Number.isFinite(longitude) || Math.abs(longitude) > 180
       || typeof region !== 'string' || typeof timezone !== 'string' || !/^[A-Za-z_]+\/[A-Za-z_/-]+$/.test(timezone)) throw new Error('Invalid gazetteer row')
+    if (data.version === 2 && (!['A', 'P'].includes(featureClass) || typeof featureCode !== 'string'
+      || !/^[A-Z0-9]{2,8}$/.test(featureCode)
+      || [admin1Id, admin3Id].some(value => value !== null && (!Number.isSafeInteger(value) || value <= 0)))) throw new Error('Invalid gazetteer metadata')
     seen.add(id)
     return { id, name, latitude, longitude, country_code: data.countryCode as string,
+      ...(data.version === 2 ? { feature_class: featureClass, feature_code: featureCode, admin1_id: admin1Id ?? undefined, admin3_id: admin3Id ?? undefined } : {}),
       country: typeof data.country === 'string' ? data.country : undefined,
       admin1: typeof regions[region] === 'string' ? regions[region] as string : undefined, timezone, source: 'geonames' }
   })

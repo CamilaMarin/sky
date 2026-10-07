@@ -1,3 +1,6 @@
+import { countryDisplayName } from '../utils/locationDisplay'
+import { getLocationCategory } from '../utils/searchMatching'
+import type { Language } from '../i18n/translations'
 import { localToday, validSearchDate } from '../utils/shareableUrl'
 import type { SearchMode } from '../types/recurringWeather'
 import { useLanguage } from '../i18n/LanguageContext'
@@ -9,8 +12,8 @@ import type { LocationSearchResult } from '../services/geocoding'
 import { searchLocationCandidates as searchLocations } from '../services/locationSearch'
 import type { Location } from '../types/location'
 
-function locationLabel(location: Location) {
-  return [location.name, location.admin1, location.country ?? location.country_code].filter(Boolean).join(', ')
+function locationLabel(location: Location, language: Language) {
+  return [location.name, location.admin1, countryDisplayName(location, language)].filter(Boolean).join(', ')
 }
 
 interface SearchFormProps {
@@ -24,7 +27,7 @@ export default function SearchForm({ onSearch, isLoading, mode, initialQuery }: 
   const { language, t } = useLanguage()
   const [date, setDate] = useState(initialQuery?.date ?? '')
   const [message, setMessage] = useState<TranslationKey | ''>('')
-  const [city, setCity] = useState(initialQuery ? locationLabel(initialQuery.location) : '')
+  const [city, setCity] = useState(initialQuery ? locationLabel(initialQuery.location, language) : '')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(initialQuery?.location ?? null)
   const [correction, setCorrection] = useState<string | null>(null)
   const [results, setResults] = useState<Location[]>([])
@@ -73,8 +76,8 @@ export default function SearchForm({ onSearch, isLoading, mode, initialQuery }: 
   }, [query, selectedLocation, open, language])
 
   function selectLocation(location: Location) {
-    setSelectedLocation(location)
-    setCity(locationLabel(location))
+    setSelectedLocation({ ...location, country: countryDisplayName(location, language) })
+    setCity(locationLabel(location, language))
     setOpen(false)
     setActiveIndex(-1)
     setMessage('')
@@ -156,7 +159,12 @@ export default function SearchForm({ onSearch, isLoading, mode, initialQuery }: 
                 role="option" aria-selected={activeIndex === index}
                 onPointerDown={event => event.preventDefault()}
                 onClick={() => selectLocation(location)}>
-                {locationLabel(location)}
+                {location.name}{' '}
+                <span className="location-context">{[
+                  getLocationCategory(location) === 'commune' ? t('locationCommune')
+                    : getLocationCategory(location) === 'locality' ? t('locationLocality') : null,
+                  location.admin1, countryDisplayName(location, language),
+                ].filter(Boolean).join(' · ')}</span>
               </li>
             ))}
           </ul>

@@ -2,6 +2,8 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  locationCommune: 'Commune',
+  locationLocality: 'Locality',
   cardPreview: 'Preview card',
   cardTitle: 'Your sky card',
   cardDescription: "A preview of the card you'll be able to save and share.",
@@ -137,6 +139,8 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  locationCommune: 'Comuna',
+  locationLocality: 'Localidad',
   cardPreview: 'Ver tarjeta',
   cardTitle: 'Tu tarjeta del cielo',
   cardDescription: 'Una vista previa de la tarjeta que podrás guardar y compartir.',

@@ -183,12 +183,12 @@ No se incluye el dump completo en el repositorio ni se descarga en runtime.
 | Registros originales | 46.467 |
 | Registros finales | 7.275 |
 | Registros seleccionados sin datos válidos | 0 |
-| CL.json | 491.621 bytes |
-| Gzip aproximado | 128.706 bytes |
+| CL.json | 676.433 bytes |
+| Gzip aproximado | 141.606 bytes |
 
-El formato versionado usa tuplas `[id, name, latitude, longitude, regionCode, timezone]`,
-un diccionario de regiones y país compartidos. Los nombres son los de la fuente,
-incluido `Estacion Central` sin tilde y `Republic of Chile`; no hay traducción manual.
+El formato versionado usa tuplas `[id, name, latitude, longitude, regionCode, timezone, featureClass, featureCode, admin1Id, admin3Id]`,
+un diccionario de regiones y país compartidos (versión 2; el lector también admite versión 1). Los nombres son los de la fuente,
+incluido `Estacion Central` sin tilde y `Republic of Chile`; el nombre visible del país se resuelve por ISO con Intl.DisplayNames.
 No se guardan población, elevación, fechas por entidad ni alias redundantes.
 El parser adapta las tuplas al modelo `Location`, validando esquema, coordenadas,
 IDs únicos y estructura de timezone.
@@ -233,16 +233,16 @@ para resolver equivalencias entre asentamientos y comunas.
   cada país: ADM3 representa comunas en Chile, no necesariamente en otros países.
 - Reutiliza normalización, distancia de edición y ranking existentes. Exacto normalizado
   → prefijo → fuzzy → otros resultados válidos del proveedor. En fuzzy, menor distancia
-  primero; empates mantienen orden Open-Meteo y luego orden local por ID.
+  primero; entre exactos las comunas chilenas van primero; los demás empates mantienen orden Open-Meteo y luego orden local por ID.
 - No hay fuzzy para menos de cuatro caracteres: mismo prefijo de dos caracteres,
   máximo una edición para longitud hasta cinco, dos para el resto y proporción ≤25%.
   Tildes no cuentan como errores. Solo una edición genera el mensaje de corrección.
 - Se ordena antes de deduplicar para preservar la etiqueta que mejor coincide.
   Se fusionan IDs GeoNames iguales (compartidos por ambos proveedores), o nombres
-  normalizados iguales **más mismo país más distancia ≤1 km**. Se completan timezone,
+  normalizados iguales **más mismo país, categoría conocida igual, área administrativa compatible y distancia ≤1 km**. Se completan timezone,
   región y país ausentes. Homónimos lejanos no se fusionan. Máximo cinco sugerencias.
-  Una comuna y un asentamiento separados más de 1 km pueden permanecer como dos
-  opciones (por ejemplo Ñuñoa); se evita fusionar entidades distintas por nombre.
+  Una comuna y un asentamiento se mantienen separados aunque estén cerca, con etiquetas
+  visibles de categoría; se evita fusionar entidades distintas por nombre.
 - Si falla el catálogo, Open-Meteo sigue disponible sin error técnico en UI; se registra
   una advertencia una vez y no se reintenta la descarga hasta recargar la página.
   Si Open-Meteo falla, se muestran coincidencias locales disponibles; si ninguna fuente
@@ -466,3 +466,49 @@ clear, rain, snow, storm, fog y variantes sin temperaturas; Birthday clear, rain
 neutral con estadísticas ausentes. Esos fixtures se eliminaron antes de finalizar.
 Se midieron 110 combinaciones (11 variantes × 2 idiomas × 5 anchos: 320, 375, 768,
 1024 y 1440 px): proporción 4:5 conservada y sin overflow horizontal ni interno.
+
+
+## Comunas y localidades en autocomplete
+
+La [inspección de registros reales](docs/location-inspection.md) detalla las nueve
+búsquedas, coordenadas, países, regiones y feature codes. En Quinta Normal, el
+registro PPLX compartido por Open-Meteo y GeoNames (3873992) se fusiona por ID; el
+ADM3 8261416 es otro registro. Además, el PPLX apunta a Estación Central en su
+jerarquía administrativa. No hay evidencia suficiente para suprimirlo o trasladarlo.
+
+La preparación del catálogo ahora conserva feature class/code y resuelve IDs
+administrativos desde las mismas filas ADM1/ADM3 del dump. No se descargan datos
+extra ni se corrigen adscripciones manualmente. Los 7.275 registros, coordenadas y
+timezones permanecen iguales; JSON v2: 676.433 bytes, gzip aproximado: 141.606 bytes.
+Open-Meteo ya entrega `feature_code`, `admin1_id` y `admin3_id`; se utilizan tal cual,
+sin inventar featureClass cuando falta. El parser aún admite catálogos v1 almacenados
+en caché, sin inferir categorías que no contengan.
+
+Reglas conservadoras:
+
+- ID GeoNames idéntico: un único resultado, completando metadatos faltantes.
+- IDs distintos: solo se fusionan con nombre normalizado y país iguales, categoría
+  conocida igual, región compatible y distancia ≤1 km. Los IDs de región prevalecen
+  sobre etiquetas traducidas; si no están ambos, se exige igual nombre normalizado
+  de región. Una contradicción de admin3 impide la fusión. Sin evidencia suficiente,
+  se conservan ambos; no se deduplica solo por nombre.
+- Comuna y localidad con distinto ID se conservan separadas, incluso cuando comparten
+  admin3 (Ñuñoa, Providencia, Maipú): parentesco administrativo no prueba que sus
+  distintos puntos representativos sean intercambiables. No se amplió la distancia.
+- Ranking: exacto > prefijo > fuzzy (menor distancia primero) > resto del proveedor.
+  Solo dentro de exactos se prioriza `CL + ADM3`. No gana una comuna fuzzy a una
+  localidad exacta. Los demás empates conservan el orden anterior de proveedores.
+- Cada sugerencia conocida muestra «Comuna / Commune» o «Localidad / Locality» en una
+  segunda línea con región y país. Categorías desconocidas no se inventan. Los nombres
+  propios se conservan; `Intl.DisplayNames` resuelve el país por ISO. CL siempre se
+  muestra como Chile en EN/ES, con fallback mínimo para navegadores sin esa API.
+- La selección conserva coordenadas, timezone y metadatos, y guarda el país visible
+  para los resultados/URLs posteriores. La utilidad de presentación no muta el registro
+  original ni usa el idioma como clave de identidad geográfica.
+
+Las doce variantes solicitadas se probaron manualmente en EN/ES, además de navegación
+por teclado y selección explícita. Tests con snapshots reales cubren todos los nombres,
+prioridad exacta de comunas, Ñuñoa/Perú, país uniforme, IDs entre proveedores, conflicto
+administrativo, categorías desconocidas y dos San Miguel distantes que sobreviven.
+Se conservan los tests de fuzzy, cancelación, fallback, fechas y URLs compartibles.
+No se modificaron share cards ni servicios de weather fetching.

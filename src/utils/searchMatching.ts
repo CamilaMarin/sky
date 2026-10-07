@@ -53,3 +53,11 @@ export function rankLocations(query: string, locations: Location[], deduplicate 
     .sort((a, b) => a.tier - b.tier || (a.tier === 2 ? a.distance - b.distance : 0) || a.index - b.index)
     .map(item => item.location)
 }
+
+
+/** Only categorize supplied GeoNames codes; absent metadata remains unknown. */
+export function getLocationCategory(location: Location): 'commune' | 'locality' | null {
+  if (location.country_code?.toUpperCase() === 'CL' && location.feature_code === 'ADM3') return 'commune'
+  if (typeof location.feature_code === 'string' && /^PPL(?:[A-Z0-9]*)$/.test(location.feature_code)) return 'locality'
+  return null
+}
