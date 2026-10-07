@@ -30,9 +30,9 @@
 .sky-card-heading h3 { margin: 0 0 .24em; font: 400 1.95em/1.12 Georgia, 'Times New Roman', serif; letter-spacing: -.025em; }
 .sky-card .sky-card-location { font-size: 1.05em; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .sky-card .sky-card-range { font-size: .85em; color: var(--card-muted); margin-top: .5em; letter-spacing: .12em; }
-.sky-card .weather-icon { width: 5.8em; height: 5.8em; margin: 0 auto .8em; color: var(--card-ink); }
+.sky-card .weather-icon { width: 5.8em; height: 5.8em; margin: 0 auto .5em; color: var(--card-ink); }
 .sky-card-condition { font-size: 1.1em; }
-.sky-card .sky-card-temperature { font: 400 5.8em/1.15 Georgia, serif; letter-spacing: -.06em; margin-top: .12em; }
+.sky-card .sky-card-temperature { font: 400 5.22em/1.15 Georgia, serif; letter-spacing: -.06em; margin-top: .12em; }
 .sky-card-metrics { display: flex; justify-content: center; gap: 2.5em; }
 .sky-card-metrics > div { min-width: 0; flex: 1; }
 .sky-card-metrics dt { font-size: .78em; color: var(--card-muted); }
@@ -40,10 +40,14 @@
 .sky-card-metrics small { display: block; font: 400 .5em/1.5 ui-sans-serif, system-ui, sans-serif; color: var(--card-muted); }
 .sky-card-tagline { font: italic 1em/1.4 Georgia, serif; color: var(--card-muted); }
 .sky-card-years > p:not(.sky-card-count) { font-size: .95em; }
-.sky-card .sky-card-count { font: 400 4.8em/1 Georgia, serif; letter-spacing: -.04em; }
-.sky-card-common { display: flex; align-items: center; justify-content: center; gap: .65em; margin-top: .8em; }
+.sky-card .sky-card-count { font: 400 4.2em/1 Georgia, serif; letter-spacing: -.04em; }
+.sky-card-common { display: flex; align-items: center; justify-content: center; gap: .65em; margin-top: .35em; }
 .sky-card-common .weather-icon { width: 2.5em; height: 2.5em; margin: 0; }
-.sky-card-averages dd { font-size: 1.4em; }
+/* A quiet inline annotation beneath the two records, rather than another KPI row. */
+.sky-card-averages { flex-wrap: wrap; gap: .3em 1.4em; color: var(--card-muted); }
+.sky-card-averages > div { flex: 0 1 auto; display: flex; flex-direction: row-reverse; align-items: baseline; gap: .35em; }
+.sky-card-averages dt { font-size: .78em; }
+.sky-card-averages dd { margin: 0; font: inherit; font-size: .9em; white-space: nowrap; }
 @media (max-width: 375px) {
   .share-card-dialog { padding: 12px; }
   .share-card-dialog .share-card-dialog-heading h2 { font-size: 21px; }
