@@ -257,3 +257,96 @@ Se comprobaron en navegador con EN y ES las 14 búsquedas solicitadas: Pudahuel,
 Cerro Navia, Ñuñoa/Nunoa, Estación Central/Estacion Central, Providencia, La Florida,
 San Miguel, Maipú/Maipu, Pudahel, Cerro Nabia y Estacion Centarl.
 Los nombres locales no cambian con el idioma; Open-Meteo sigue recibiendo EN/ES.
+
+## Shareable URLs
+
+Una consulta exitosa actualiza la URL sin recargar la página. Se puede copiar desde
+la barra del navegador y abrir en otra pestaña o navegador. No requiere backend,
+router, permisos de clipboard ni botón de compartir.
+
+Ejemplo (después del path actual de la aplicación):
+
+```text
+?mode=single&date=1994-07-17&lat=-33.42398&lon=-70.85493&tz=America%2FSantiago&place=Pudahuel&admin1=Regi%C3%B3n+Metropolitana&country=Chile
+```
+
+| Parámetro | Significado |
+| --- | --- |
+| `mode` | `single` o `birthday` (se adapta al modo interno `recurring`) |
+| `date` | Fecha ISO `YYYY-MM-DD`; en Birthday indica día, mes y año inicial |
+| `lat`, `lon` | Coordenadas decimales, hasta cinco decimales al generar la URL |
+| `tz` | Zona horaria reconocida por `Intl.DateTimeFormat` |
+| `place` | Nombre de ubicación, obligatorio, máximo 160 caracteres |
+| `admin1` | Región opcional, máximo 160 caracteres |
+| `country` | País opcional, máximo 100 caracteres |
+
+La URL representa **la consulta**, no una copia del clima. No contiene IDs de
+proveedores, source, códigos WMO, temperaturas, estadísticas, tema ni idioma.
+Cada apertura vuelve a consultar Open-Meteo directamente con coordenadas y zona
+horaria; **no ejecuta geocoding ni carga el gazetteer**. Los resultados pueden variar
+si el proveedor revisa sus datos; Birthday incluye los años completados disponibles
+al momento de abrir el enlace. Se mantienen las reglas de años sin datos y 29 de febrero.
+El idioma sigue dependiendo de la preferencia local, navegador y fallback existentes.
+
+### Validación y precisión
+
+`ShareableWeatherQuery` es un modelo explícito; `parseWeatherQuery` y
+`serializeWeatherQuery` son utilidades independientes de React. Se rechazan modos
+no reconocidos, parámetros obligatorios ausentes o duplicados, números no finitos,
+latitudes fuera de ±90, longitudes fuera de ±180, fechas imposibles, anteriores a
+1940 o posteriores al día actual del navegador. Birthday aplica además el límite
+calendario de la timezone de destino; el servicio conserva su regla de días completos.
+`tz` tiene un máximo de 80 caracteres y debe ser reconocido por Intl. Se rechazan
+strings vacíos y caracteres de control. React renderiza los nombres como texto,
+sin `innerHTML`. La validación no certifica que un nombre corresponda a esas coordenadas.
+
+Cinco decimales representan aproximadamente 1,1 m en latitud y menos en longitud:
+error de redondeo de alrededor de 0,56 m por eje como máximo, suficiente para una
+localidad. Cálculo basado en las distancias por grado descritas por
+[USGS](https://www.usgs.gov/faqs/how-much-distance-does-a-degree-minute-and-second-cover-your-maps).
+La consulta original también utiliza las coordenadas redondeadas, para que la URL
+restaurada consulte el mismo punto. El resto de decimales no se guarda.
+
+Si una ubicación del proveedor carece de timezone reconocida, se mantiene la consulta
+existente con `auto`, pero no se genera un enlace incompleto: tras el éxito se eliminan
+los parámetros de una consulta anterior. Navegadores con datos de zonas horarias
+antiguos pueden rechazar zonas nuevas; no se sustituye una zona por otra arbitrariamente.
+
+### Historial y restauración
+
+- Se usa exclusivamente `history.replaceState()` tras cada consulta exitosa, tanto
+  la primera como las siguientes. Escribir, elegir sugerencias, cambiar fecha o pulsar
+  el selector de modo no modifica la URL. Cambiar modo y consultar con éxito reemplaza
+  la consulta anterior. Mientras se edita o si falla una nueva consulta, la URL conserva
+  la última consulta exitosa (o el enlace inicial para permitir reintentar).
+- Back/Forward no recorren búsquedas anteriores porque no se crean entradas para ellas;
+  mantienen la navegación normal entre páginas. No hace falta un listener `popstate`
+  para un historial de búsquedas que la aplicación no crea.
+- `new URL(window.location.href)` conserva origen, pathname/base path de GitHub Pages
+  y fragmento. Solo se reemplazan los ocho parámetros propios; se conservan parámetros
+  desconocidos, incluidos `utm_source`, `ref` y sus valores repetidos.
+- Una URL inválida abre el formulario vacío en idle, sin fetch meteorológico. Se limpian
+  únicamente sus parámetros propios con replaceState; los ajenos y el fragmento permanecen.
+- Una URL válida precarga modo, fecha y ubicación seleccionada antes de la consulta.
+  El formulario sigue editable, y modificar el texto de ubicación invalida la selección
+  como antes. Un ID local reservado `0` satisface el modelo existente, nunca se serializa
+  ni se utiliza para buscar la ubicación en un proveedor.
+- La restauración cancela solicitudes al desmontar; en StrictMode se evita enviar dos
+  peticiones por su ciclo adicional de montaje/limpieza.
+
+### Pruebas de enlaces
+
+`tests/shareableUrl.test.mjs` cubre round trips en ambos modos, Unicode, encoding,
+coordenadas límite y redondeo, timezones, fechas reales/imposibles/bisiestas,
+campos ausentes/duplicados, longitudes, parámetros ajenos, conservación de base path,
+limpieza de URLs inválidas e integración directa con ambos servicios meteorológicos.
+
+Verificación manual: búsquedas y enlaces reabiertos en pestañas nuevas para Pudahuel,
+Cerro Navia y Ñuñoa (Single Day, 17/07/1994), Pudahuel (Birthday, 17/07/1994) y
+Ñuñoa (Birthday, 29/02/2000). Se revisaron los requests con instrumentación temporal,
+retirada antes de finalizar: las restauraciones solo llaman a Historical Weather.
+Se comprobó refresh de Pudahuel y limpieza de una fecha imposible preservando UTM y hash.
+
+También se comprobó Back/Forward entre páginas y cambio EN/ES conservando el resultado.
+La reapertura bisiesta recibió un error transitorio del proveedor; el reintento desde el
+formulario restaurado mostró correctamente los siete años bisiestos 2000–2024.

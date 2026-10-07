@@ -1,3 +1,4 @@
+import { localToday, validSearchDate } from '../utils/shareableUrl'
 import type { SearchMode } from '../types/recurringWeather'
 import { useLanguage } from '../i18n/LanguageContext'
 import type { TranslationKey } from '../i18n/translations'
@@ -16,14 +17,15 @@ interface SearchFormProps {
   onSearch: (location: Location, date: string) => void
   isLoading: boolean
   mode: SearchMode
+  initialQuery?: { location: Location; date: string }
 }
 
-export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProps) {
+export default function SearchForm({ onSearch, isLoading, mode, initialQuery }: SearchFormProps) {
   const { language, t } = useLanguage()
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(initialQuery?.date ?? '')
   const [message, setMessage] = useState<TranslationKey | ''>('')
-  const [city, setCity] = useState('')
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
+  const [city, setCity] = useState(initialQuery ? locationLabel(initialQuery.location) : '')
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(initialQuery?.location ?? null)
   const [correction, setCorrection] = useState<string | null>(null)
   const [results, setResults] = useState<Location[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -102,9 +104,7 @@ export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProp
     : status === 'error' ? t('cityError')
     : status === 'success' ? (results.length ? [correction ? t('didYouMean', { city: correction }) : '', t('found', { count: results.length })].filter(Boolean).join(' ') : `${t('noLocations')} ${t('checkSpelling')}`)
     : ''
-  const today = new Date()
-  // Use local calendar values to avoid shifting the date across time zones.
-  const maxDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  const maxDate = localToday()
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -113,7 +113,7 @@ export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProp
       inputRef.current?.focus()
       return
     }
-    if (!date || date > maxDate || date < '1940-01-01') {
+    if (!validSearchDate(date)) {
       setMessage('validDate')
       return
     }
