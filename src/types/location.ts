@@ -1,4 +1,5 @@
 export interface Location {
+  source?: 'open-meteo' | 'geonames'
   id: number
   name: string
   latitude: number

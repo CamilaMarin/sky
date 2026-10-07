@@ -96,7 +96,7 @@ export default function App() {
         <p className="memory-note">{t('memory')}</p>
       </main>
 
-      <footer className="site-footer">{t('footer')}</footer>
+      <footer className="site-footer">{t('footer')}<p>{t('locationCredit')} <a href="https://www.geonames.org/">GeoNames</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p></footer>
     </div>
   )
 }

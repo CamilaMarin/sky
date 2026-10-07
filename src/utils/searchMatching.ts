@@ -43,10 +43,10 @@ export function scoreLocation(query: string, location: Location): { tier: number
   return { tier: 3, distance: Infinity }
 }
 
-export function rankLocations(query: string, locations: Location[]): Location[] {
+export function rankLocations(query: string, locations: Location[], deduplicate = true): Location[] {
   const seen = new Set<number>()
   return locations.filter(location => {
-    if (seen.has(location.id)) return false
+    if (deduplicate && seen.has(location.id)) return false
     seen.add(location.id)
     return true
   }).map((location, index) => ({ location, index, ...scoreLocation(query, location) }))

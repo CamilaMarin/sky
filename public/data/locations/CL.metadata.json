@@ -1,0 +1,29 @@
+{
+  "source": "https://download.geonames.org/export/dump/CL.zip",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "inputSha256": "8073778743e096619f023343c3e372102986122e72aee812973507a5669ceb5b",
+  "originalRecords": 46467,
+  "selectedRecords": 7275,
+  "excludedInvalid": 0,
+  "originalBytes": 6056261,
+  "jsonBytes": 491621,
+  "gzipBytes": 128706,
+  "featureCodes": [
+    "A.ADM3",
+    "P.PPL",
+    "P.PPLA",
+    "P.PPLA2",
+    "P.PPLA3",
+    "P.PPLC",
+    "P.PPLL",
+    "P.PPLX"
+  ],
+  "timezones": [
+    "America/Coyhaique",
+    "America/La_Paz",
+    "America/Lima",
+    "America/Punta_Arenas",
+    "America/Santiago",
+    "Pacific/Easter"
+  ]
+}

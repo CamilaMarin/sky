@@ -142,3 +142,118 @@ Estrategia y límites:
 - Los anuncios de carga comienzan después del debounce, y la corrección se incluye en el estado accesible final del autocomplete.
 
 Limitación intencional: el fallback depende de los 20 candidatos del prefijo. No garantiza corregir cualquier ciudad, errores en los primeros caracteres ni búsquedas calificadas por país; prioriza precisión y un coste acotado. Al priorizar exactas, en ES «Santiago» (Filipinas) puede preceder a «Santiago de Chile»; no se infiere la ubicación del usuario.
+
+## Expanded Location Search: GeoNames local
+
+Open-Meteo sigue consultándose como proveedor global (una petición normal y,
+como máximo, su fallback de prefijo existente). Un catálogo estático complementa
+su cobertura de comunas y localidades chilenas. No se usa la API de GeoNames,
+credenciales, Nominatim ni un listado mantenido manualmente.
+
+Fuente: [GeoNames CL.zip](https://download.geonames.org/export/dump/CL.zip),
+[formato oficial](https://download.geonames.org/export/dump/readme.txt) y
+[códigos de entidades](https://www.geonames.org/export/codes.html).
+Datos adaptados de GeoNames bajo [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+La adaptación filtra registros y reduce columnas; hay atribución también en el footer.
+Snapshot descargado el 6 de octubre de 2026. GeoNames actualiza los dumps;
+la actualización de este catálogo es manual, ejecutando el script y revisando el diff.
+
+### Regeneración sin dependencias adicionales
+
+Requiere Node, curl y unzip. Ejecutar desde la raíz:
+
+```sh
+curl -fL https://download.geonames.org/export/dump/CL.zip -o /tmp/CL.zip
+unzip -p /tmp/CL.zip CL.txt > /tmp/CL.txt
+node scripts/prepare-geonames.mjs /tmp/CL.txt CL public/data/locations/CL.json
+node --test tests/*.test.mjs
+npm run build
+git diff --check
+```
+
+El script no descarga ni ejecuta contenido remoto. El mismo TXT produce los mismos
+JSON y metadatos; se guarda SHA-256 del TXT para identificar el snapshot exacto.
+Para reproducir esa versión después de actualizar GeoNames, conservar el TXT original.
+No se incluye el dump completo en el repositorio ni se descarga en runtime.
+
+| Medición del snapshot | Valor |
+| --- | ---: |
+| ZIP original | 1.421.407 bytes |
+| TXT original | 6.056.261 bytes |
+| Registros originales | 46.467 |
+| Registros finales | 7.275 |
+| Registros seleccionados sin datos válidos | 0 |
+| CL.json | 491.621 bytes |
+| Gzip aproximado | 128.706 bytes |
+
+El formato versionado usa tuplas `[id, name, latitude, longitude, regionCode, timezone]`,
+un diccionario de regiones y país compartidos. Los nombres son los de la fuente,
+incluido `Estacion Central` sin tilde y `Republic of Chile`; no hay traducción manual.
+No se guardan población, elevación, fechas por entidad ni alias redundantes.
+El parser adapta las tuplas al modelo `Location`, validando esquema, coordenadas,
+IDs únicos y estructura de timezone.
+
+### Filtro y casos inspeccionados
+
+Se conservan `A.ADM3` (comunas) y localidades habitadas `P.PPL`, `P.PPLX`,
+`P.PPLL`, `P.PPLA`, `P.PPLA2`, `P.PPLA3`, `P.PPLC` presentes en Chile.
+El filtro admite además `P.PPLA4` y `P.PPLG` si aparecen en futuras fuentes.
+Las regiones `A.ADM1` solo aportan contexto. Se excluyen entidades históricas,
+abandonadas, granjas, minas, estaciones, hoteles, cerros y otros POIs.
+
+| Caso | Representación conservada |
+| --- | --- |
+| Pudahuel | ADM3, ID 8261436; se excluye la granja homónima FRM |
+| Cerro Navia | ADM3, ID 8261397; se excluye el cerro HLL |
+| Ñuñoa | PPLX 3878431 y ADM3 8261178 |
+| Estación Central | ADM3 8261400, nombre original `Estacion Central`; se excluyen estaciones RSTN |
+| Providencia | PPLA3 y ADM3; se excluyen minas/hotel |
+| La Florida | PPL/PPLX y ADM3; se excluyen minas/granjas |
+| San Miguel | PPL/PPLX y ADM3; se conservan homónimos distantes |
+| Maipú | PPL y ADM3; se excluye estación RSTN |
+
+Se conserva **la timezone de la columna 18 de cada registro**, sin derivarla del
+país ni hacer otra petición al seleccionar. Incluye America/Santiago,
+America/Punta_Arenas, America/Coyhaique, Pacific/Easter y algunos registros de
+frontera con America/Lima y America/La_Paz según GeoNames. No se corrigen a mano.
+Las coordenadas de una comuna son un punto representativo, no la dirección del
+usuario. La calidad y exactitud geográfica dependen de GeoNames; no hay polígonos
+para resolver equivalencias entre asentamientos y comunas.
+
+### Carga, búsqueda y combinación
+
+- El catálogo se carga al buscar al menos dos caracteres, después del debounce
+  existente de 300 ms. Usa `import.meta.env.BASE_URL` y funciona bajo el path de Pages.
+  Una promesa compartida por país evita cargas repetidas y peticiones concurrentes
+  duplicadas. No entra en el bundle inicial. La carga tiene un límite de ocho segundos.
+- Cancelar una búsqueda no cancela una descarga compartida, pero `AbortSignal` evita
+  devolver resultados obsoletos. Se conserva el cache del formulario por idioma/query.
+- `searchGazetteer` admite códigos de países; agregar catálogos preparados y habilitar
+  esos códigos permite ampliar cobertura. El filtro administrativo debe revisarse para
+  cada país: ADM3 representa comunas en Chile, no necesariamente en otros países.
+- Reutiliza normalización, distancia de edición y ranking existentes. Exacto normalizado
+  → prefijo → fuzzy → otros resultados válidos del proveedor. En fuzzy, menor distancia
+  primero; empates mantienen orden Open-Meteo y luego orden local por ID.
+- No hay fuzzy para menos de cuatro caracteres: mismo prefijo de dos caracteres,
+  máximo una edición para longitud hasta cinco, dos para el resto y proporción ≤25%.
+  Tildes no cuentan como errores. Solo una edición genera el mensaje de corrección.
+- Se ordena antes de deduplicar para preservar la etiqueta que mejor coincide.
+  Se fusionan IDs GeoNames iguales (compartidos por ambos proveedores), o nombres
+  normalizados iguales **más mismo país más distancia ≤1 km**. Se completan timezone,
+  región y país ausentes. Homónimos lejanos no se fusionan. Máximo cinco sugerencias.
+  Una comuna y un asentamiento separados más de 1 km pueden permanecer como dos
+  opciones (por ejemplo Ñuñoa); se evita fusionar entidades distintas por nombre.
+- Si falla el catálogo, Open-Meteo sigue disponible sin error técnico en UI; se registra
+  una advertencia una vez y no se reintenta la descarga hasta recargar la página.
+  Si Open-Meteo falla, se muestran coincidencias locales disponibles; si ninguna fuente
+  puede resolver la búsqueda, se conserva el estado de error accesible existente.
+
+### Verificación
+
+`node --test tests/*.test.mjs` cubre parser/carga compartida, búsquedas exactas,
+tildes, prefijos, errores tipográficos, ranking, deduplicación geográfica, nombres
+iguales distantes, abort y fallos de cada fuente, además de todos los tests previos.
+Se comprobaron en navegador con EN y ES las 14 búsquedas solicitadas: Pudahuel,
+Cerro Navia, Ñuñoa/Nunoa, Estación Central/Estacion Central, Providencia, La Florida,
+San Miguel, Maipú/Maipu, Pudahel, Cerro Nabia y Estacion Centarl.
+Los nombres locales no cambian con el idioma; Open-Meteo sigue recibiendo EN/ES.

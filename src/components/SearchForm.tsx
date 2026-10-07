@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { normalizeSearchText } from '../utils/searchNormalization'
 import type { LocationSearchResult } from '../services/geocoding'
-import { searchLocations } from '../services/geocoding'
+import { searchLocationCandidates as searchLocations } from '../services/locationSearch'
 import type { Location } from '../types/location'
 
 function locationLabel(location: Location) {
