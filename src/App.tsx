@@ -1,3 +1,5 @@
+import ShareCardPreview from './components/share/ShareCardPreview'
+import { buildSingleDayShareCardData, buildBirthdayShareCardData } from './utils/shareCardData'
 import ShareButton from './components/ShareButton'
 import { buildSingleDayShareContent, buildBirthdayShareContent } from './utils/shareContent'
 import type { ShareContent } from './utils/shareContent'
@@ -103,7 +105,13 @@ export default function App() {
         : buildBirthdayShareContent(state.query, language, window.location.href)
     } catch { /* Do not offer sharing for a query that is no longer valid. */ }
   }
-  const shareAction = shareContent ? <ShareButton key={`${shareContent.url}:${language}`} content={shareContent} /> : undefined
+  const cardData = state.status === 'success' ? (state.kind === 'single'
+    ? buildSingleDayShareCardData(state.weather, state.location, language)
+    : buildBirthdayShareCardData(state.result, state.stats, state.location, language)) : null
+  const shareAction = cardData ? <div className="result-actions">
+    {shareContent && <ShareButton key={`${shareContent.url}:${language}`} content={shareContent} />}
+    <ShareCardPreview data={cardData} />
+  </div> : undefined
   const theme = state.status === 'success' && state.kind === 'single' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'
   return (
     <div className="page" data-weather={theme}>

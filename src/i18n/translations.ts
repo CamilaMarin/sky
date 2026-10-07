@@ -2,6 +2,18 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  cardPreview: 'Preview card',
+  cardTitle: 'Your sky card',
+  cardDescription: "A preview of the card you'll be able to save and share.",
+  cardClose: 'Close',
+  cardPast: 'A little trip to the past',
+  cardYears: 'years under the sky',
+  cardYear: 'year under the sky',
+  cardWarmest: 'Warmest',
+  cardColdest: 'Coldest',
+  cardAvgHigh: 'Avg high',
+  cardAvgLow: 'Avg low',
+  cardMemories: 'A sky full of memories',
   shareSky: 'Share this sky',
   shareCopied: 'Link copied',
   shareError: "Couldn't share. You can copy the link from your address bar.",
@@ -125,6 +137,18 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  cardPreview: 'Ver tarjeta',
+  cardTitle: 'Tu tarjeta del cielo',
+  cardDescription: 'Una vista previa de la tarjeta que podrás guardar y compartir.',
+  cardClose: 'Cerrar',
+  cardPast: 'Un pequeño viaje al pasado',
+  cardYears: 'años bajo el cielo',
+  cardYear: 'año bajo el cielo',
+  cardWarmest: 'Más cálido',
+  cardColdest: 'Más frío',
+  cardAvgHigh: 'Máx. prom.',
+  cardAvgLow: 'Mín. prom.',
+  cardMemories: 'Un cielo lleno de recuerdos',
   shareSky: 'Compartir este cielo',
   shareCopied: 'Enlace copiado',
   shareError: 'No se pudo compartir. Puedes copiar el enlace de la barra de direcciones.',

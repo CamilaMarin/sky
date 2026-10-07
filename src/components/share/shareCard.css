@@ -1,0 +1,50 @@
+.result-actions { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: 12px; margin-top: 16px; }
+.result-actions .share-result { margin-top: 0; }
+.preview-card-button { width: auto; max-width: 100%; min-height: 44px; margin: 0; padding: 10px 14px; background: transparent; color: var(--text-secondary); border-color: transparent; font-weight: 400; text-decoration: underline; text-underline-offset: 4px; }
+.share-card-dialog { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 24px); padding: 20px; border: 1px solid #bdcbd0; border-radius: 14px; background: #f2f3ef; color: #283f4c; color-scheme: light; overflow: auto; text-align: left; --focus: #84561d; }
+.share-card-dialog::backdrop { background: #152b3acc; }
+.share-card-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.share-card-dialog .share-card-dialog-heading h2 { margin: 0; font: 400 24px/1.2 Georgia, serif; }
+.share-card-dialog-heading button { width: auto; min-height: 44px; padding: 10px; margin: 0; color: #283f4c; background: transparent; border-color: #9aafb6; font-weight: 400; }
+.share-card-dialog-description { font-size: 13px; line-height: 1.5; margin: 10px 0 20px; color: #506471; }
+/* Container units scale the complete composition with its own width, not the viewport.
+   A future 1080px-wide wrapper uses exactly the same layout and 4:5 ratio. */
+.sky-card-frame { width: 100%; container-type: inline-size; }
+.sky-card {
+  --card-top: #d9e4eb; --card-bottom: #eee7db; --card-glow: #fff4d8;
+  --card-ink: #283f4c; --card-muted: #49616c; --accent: var(--card-ink);
+  width: 100%; aspect-ratio: 4 / 5; padding: 7.5%;
+  display: flex; flex-direction: column; justify-content: space-between; gap: .75em;
+  color: var(--card-ink); text-align: center; font-size: 3cqw; line-height: 1.35;
+  background: radial-gradient(ellipse at 80% 12%, var(--card-glow), transparent 62%), linear-gradient(160deg, var(--card-top), var(--card-bottom));
+  isolation: isolate;
+}
+.sky-card[data-theme="clear"] { --card-top: #bcd9e8; --card-bottom: #f4ddb5; --card-glow: #fff3cf; }
+.sky-card[data-theme="cloudy"] { --card-top: #b7cbd8; --card-bottom: #e7e8df; --card-glow: #e8eef1; }
+.sky-card[data-theme="rain"] { --card-top: #294858; --card-bottom: #557781; --card-glow: #789498; --card-ink: #f6f4ea; --card-muted: #e4e9e7; }
+.sky-card[data-theme="snow"] { --card-top: #cbdfe9; --card-bottom: #f4f5ec; --card-glow: #fff; }
+.sky-card[data-theme="storm"] { --card-top: #263442; --card-bottom: #525c75; --card-glow: #747e94; --card-ink: #fcf3df; --card-muted: #ece7e5; }
+.sky-card[data-theme="fog"] { --card-top: #bfcfcd; --card-bottom: #e6e9dd; --card-glow: #ecf1e9; }
+.sky-card p { margin: 0; }
+.sky-card-brand { font-size: .72em; letter-spacing: .22em; font-weight: 500; }
+.sky-card-heading h3 { margin: 0 0 .24em; font: 400 1.95em/1.12 Georgia, 'Times New Roman', serif; letter-spacing: -.025em; }
+.sky-card .sky-card-location { font-size: 1.05em; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sky-card .sky-card-range { font-size: .85em; color: var(--card-muted); margin-top: .5em; letter-spacing: .12em; }
+.sky-card .weather-icon { width: 5.8em; height: 5.8em; margin: 0 auto .8em; color: var(--card-ink); }
+.sky-card-condition { font-size: 1.1em; }
+.sky-card .sky-card-temperature { font: 400 5.8em/1.15 Georgia, serif; letter-spacing: -.06em; margin-top: .12em; }
+.sky-card-metrics { display: flex; justify-content: center; gap: 2.5em; }
+.sky-card-metrics > div { min-width: 0; flex: 1; }
+.sky-card-metrics dt { font-size: .78em; color: var(--card-muted); }
+.sky-card-metrics dd { font: 400 1.8em/1.3 Georgia, serif; margin-top: .15em; }
+.sky-card-metrics small { display: block; font: 400 .5em/1.5 ui-sans-serif, system-ui, sans-serif; color: var(--card-muted); }
+.sky-card-tagline { font: italic 1em/1.4 Georgia, serif; color: var(--card-muted); }
+.sky-card-years > p:not(.sky-card-count) { font-size: .95em; }
+.sky-card .sky-card-count { font: 400 4.8em/1 Georgia, serif; letter-spacing: -.04em; }
+.sky-card-common { display: flex; align-items: center; justify-content: center; gap: .65em; margin-top: .8em; }
+.sky-card-common .weather-icon { width: 2.5em; height: 2.5em; margin: 0; }
+.sky-card-averages dd { font-size: 1.4em; }
+@media (max-width: 375px) {
+  .share-card-dialog { padding: 12px; }
+  .share-card-dialog .share-card-dialog-heading h2 { font-size: 21px; }
+}

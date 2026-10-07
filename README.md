@@ -407,3 +407,62 @@ sheet nativo, por lo que no se confirma su flujo visual real en móvil.
 Se revisaron ambos modos e idiomas a 320, 375, 768, 1024 y 1440 px: sin overflow
 horizontal y con target de 44 px. Validación final: 40 tests aprobados,
 `npm run build` y `git diff --check` correctos. No hay script de lint.
+
+
+## Share-card preview (4:5)
+
+Single Day y Birthday Weather ofrecen «Preview card» / «Ver tarjeta» junto a
+compartir. La acción abre un diálogo sin navegar, modificar la URL ni consultar
+APIs adicionales. Esta etapa es **solo preview**: no genera imágenes, no descarga
+archivos y no comparte archivos. La exportación de imagen será una etapa independiente.
+
+### Composición y datos
+
+- `components/share/ShareCard` define marca, fecha, ubicación, fondo estático y
+  tagline. `SingleDayShareCard` y `BirthdayShareCard` son composiciones distintas,
+  presentacionales y sin acceso a servicios, URL, geocoding ni Web Share.
+- `SingleDayShareCardData` y `BirthdayShareCardData` contienen únicamente textos,
+  métricas visibles y tema. Las funciones puras de `shareCardData.ts` preparan
+  formatos EN/ES y omiten datos ausentes, reutilizando los formatos, iconos SVG,
+  clasificación WeatherTheme y selección de temperatura ya existentes.
+- Single Day muestra fecha, lugar/país, condición, temperatura protagonista y
+  mín./máx. disponibles. Sin temperatura, el espacio se redistribuye; no se
+  inventan ceros ni se muestran placeholders. Los ceros reales se conservan.
+- Birthday usa directamente las estadísticas calculadas: `yearsWithData` (con
+  singular/plural), records y promedios disponibles. El rango procede de
+  `result.startYear/endYear`, no de los años con datos; no oculta años ausentes.
+  El 29 de febrero se formatea con un año bisiesto de referencia. El tema procede
+  de `mostCommonTheme`, con neutral si falta; no se equipara un tema a un código WMO.
+- La marca permanece `HOW WAS THE SKY?`; los demás textos son localizados. La
+  ubicación se limita a lugar y país; sin país solo se muestra el lugar. Los nombres
+  extensos pueden ocupar hasta tres líneas visibles, conservando el texto en el DOM.
+
+### Layout y accesibilidad
+
+`aspect-ratio: 4 / 5`, padding proporcional y unidades de contenedor (`cqw`) escalan
+la composición respecto de su propio ancho, no de la ventana. Un futuro contenedor
+de 1080 px producirá una composición de 1350 px de alto. Utiliza fuentes locales,
+gradientes estáticos y SVG; no hay animaciones ni dependencias externas dentro de
+la tarjeta. Se requiere soporte moderno de container units y `<dialog>`.
+
+`ShareCardPreview` usa `showModal()`, título y descripción asociados, botón Cerrar,
+Escape nativo y devolución del foco al disparador. El modal impide interactuar con
+el contenido de fondo. Tiene scroll vertical cuando hace falta; el card mantiene
+su proporción. Los textos usan headings, párrafos y listas de definiciones; los
+SVG son decorativos. La acción de preview es secundaria respecto a compartir.
+
+### Validación
+
+44 tests aprobados, incluyendo cuatro tests nuevos de transformación: datos
+completos, temperatura principal/min/max ausentes, cero real, Unicode, EN/ES,
+records/promedios/theme null, cobertura, singular/plural, rango y fecha bisiesta.
+Build y `git diff --check` pasan. No existe script de lint.
+
+Se verificaron en navegador los cuatro casos: Single Day Pudahuel y Ñuñoa
+(17/07/1994), Birthday Pudahuel (desde 17/07/1994) y Ñuñoa (desde 29/02/2000), en
+EN/ES. Se comprobó apertura por teclado, Cerrar, Escape, retorno de foco, modalidad,
+scroll y URL sin cambios. Con fixtures temporales se inspeccionaron visualmente
+clear, rain, snow, storm, fog y variantes sin temperaturas; Birthday clear, rain y
+neutral con estadísticas ausentes. Esos fixtures se eliminaron antes de finalizar.
+Se midieron 110 combinaciones (11 variantes × 2 idiomas × 5 anchos: 320, 375, 768,
+1024 y 1440 px): proporción 4:5 conservada y sin overflow horizontal ni interno.
