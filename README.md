@@ -110,3 +110,35 @@ Ejecuta todas las pruebas existentes y de estadísticas:
 ```sh
 node --test tests/*.test.mjs
 ```
+
+## Búsqueda tolerante de ubicaciones
+
+La normalización (`searchNormalization.ts`) aplica trim, minúsculas, NFD, eliminación de marcas Unicode y espacios únicos. Se usa para comparación y caché, sin modificar el texto visible.
+
+Comprobación real del proveedor y de la UI en EN/ES (6 de octubre de 2026):
+
+| Consultas | Open-Meteo sin fallback | Aplicación |
+| --- | --- | --- |
+| `concepcion` / `Concepción` | Misma lista; Concepción, Chile primero | Coincidencias normalizadas, sin corrección |
+| `valparaiso` / `Valparaíso` | Misma lista; Valparaíso, Chile primero | Coincidencias normalizadas, sin corrección |
+| `nunoa` / `Ñuñoa` | Ñuñoa, Chile y Nuñoa, Perú | Sin corrección |
+| `sao paulo` / `São Paulo` | São Paulo y otros nombres alternativos | Exactas primero; sin corrección |
+| `santiago` | Santiago; en ES, Chile se llama Santiago de Chile | Ranking por exactitud, sin país preferido |
+| `santiagoo` | Sin resultados | Ofrece Santiago mediante fallback |
+| `santigo` | Santigoso y Santigogae; no Santiago | Conserva prefijos y añade Santiago como sugerencia |
+
+Open-Meteo ya ignora diacríticos y mayúsculas; no se repite la consulta con una versión sin tildes. Ver [documentación de geocoding](https://open-meteo.com/en/docs/geocoding-api).
+
+Estrategia y límites:
+
+- Camino normal: una petición con `count=5`, idioma activo y debounce de 300 ms.
+- Fallback: solo para consultas de 6–120 caracteres, sin coma, sin exacta normalizada y con menos de cinco resultados originales. Una segunda petición usa los primeros cuatro caracteres normalizados y `count=20`; se filtran los candidatos localmente. Máximo **2 requests por búsqueda completada**, o cero si está en caché. No se consulta una lista mundial ni se generan variantes en bucle.
+- Levenshtein puro y testeable: sin fuzzy para 1–3 caracteres; hasta 1 edición para 4–5 y 2 para 6+. Se exigen los mismos dos primeros caracteres y una distancia relativa máxima del 25%. Las consultas cortas no activan la búsqueda ampliada.
+- Nombres localizados como Santiago de Chile permiten comparar las palabras iniciales cuando van seguidas de `de`, `del`, `do`, `da`, `dos` o `das`. La sugerencia siempre conserva el nombre completo del proveedor.
+- Ranking: exacta normalizada, prefijo, fuzzy (menor distancia), otros alias del proveedor. En empate se conserva el orden original; se eliminan duplicados por ID y se muestran como máximo cinco ubicaciones.
+- El mensaje «¿Quisiste decir…?» exige una coincidencia fuzzy de una sola edición. Es una propuesta, nunca una selección automática. Los lugares con nombres similares pueden ser distintos; siempre se muestran región y país para elegir.
+- El caché de resultados completos tiene clave `idioma:consultaNormalizada`, incluidas búsquedas vacías y sugerencias, con un límite de 100 entradas en memoria. EN/ES permanecen separados. Las búsquedas canceladas o fallidas no se almacenan; si solo falla el fallback se conservan los resultados originales válidos.
+- Los errores o cancelaciones no desencadenan más requests. Se conserva ArrowDown/ArrowUp, Enter, Escape y selección por puntero; editar la ciudad invalida la ubicación seleccionada.
+- Los anuncios de carga comienzan después del debounce, y la corrección se incluye en el estado accesible final del autocomplete.
+
+Limitación intencional: el fallback depende de los 20 candidatos del prefijo. No garantiza corregir cualquier ciudad, errores en los primeros caracteres ni búsquedas calificadas por país; prioriza precisión y un coste acotado. Al priorizar exactas, en ES «Santiago» (Filipinas) puede preceder a «Santiago de Chile»; no se infiere la ubicación del usuario.

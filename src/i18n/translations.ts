@@ -2,6 +2,9 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  didYouMean: 'Did you mean {city}?',
+  noLocations: 'No locations found.',
+  checkSpelling: 'Try checking the spelling.',
   statsTitle: "Your birthdays at a glance",
   explored: "{count} birthdays explored",
   statsCoverage: "{with} years with data · {without} without data",
@@ -115,6 +118,9 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  didYouMean: '¿Quisiste decir {city}?',
+  noLocations: 'No encontramos ubicaciones.',
+  checkSpelling: 'Prueba revisando cómo está escrito.',
   statsTitle: "Tus cumpleaños de un vistazo",
   explored: "{count} cumpleaños explorados",
   statsCoverage: "{with} años con datos · {without} sin datos",

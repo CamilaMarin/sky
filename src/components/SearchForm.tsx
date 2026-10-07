@@ -3,6 +3,8 @@ import { useLanguage } from '../i18n/LanguageContext'
 import type { TranslationKey } from '../i18n/translations'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
+import { normalizeSearchText } from '../utils/searchNormalization'
+import type { LocationSearchResult } from '../services/geocoding'
 import { searchLocations } from '../services/geocoding'
 import type { Location } from '../types/location'
 
@@ -22,34 +24,41 @@ export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProp
   const [message, setMessage] = useState<TranslationKey | ''>('')
   const [city, setCity] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
+  const [correction, setCorrection] = useState<string | null>(null)
   const [results, setResults] = useState<Location[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
-  const cache = useRef(new Map<string, Location[]>())
+  const cache = useRef(new Map<string, LocationSearchResult>())
   const query = city.trim()
   const expanded = open && !selectedLocation && query.length >= 2
 
   useEffect(() => {
     if (!open || selectedLocation || query.length < 2) return
     const controller = new AbortController()
-    const cacheKey = `${language}:${query.toLowerCase()}`
+    const cacheKey = `${language}:${normalizeSearchText(query)}`
     setResults([])
+    setCorrection(null)
     setActiveIndex(-1)
     const cached = cache.current.get(cacheKey)
     if (cached) {
-      setResults(cached)
+      setResults(cached.locations)
+      setCorrection(cached.correction)
       setStatus('success')
       return
     }
-    setStatus('loading')
+    setStatus('idle')
     const timer = window.setTimeout(async () => {
+      setStatus('loading')
       try {
         const locations = await searchLocations(query, controller.signal, language)
         if (controller.signal.aborted) return
+        // Bound session memory; failed or aborted searches are never cached.
+        if (cache.current.size >= 100) cache.current.delete(cache.current.keys().next().value!)
         cache.current.set(cacheKey, locations)
-        setResults(locations)
+        setResults(locations.locations)
+        setCorrection(locations.correction)
         setStatus('success')
       } catch {
         if (!controller.signal.aborted) setStatus('error')
@@ -91,7 +100,7 @@ export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProp
 
   const searchMessage = status === 'loading' ? t('searching')
     : status === 'error' ? t('cityError')
-    : status === 'success' ? (results.length ? t('found', { count: results.length }) : t('empty'))
+    : status === 'success' ? (results.length ? [correction ? t('didYouMean', { city: correction }) : '', t('found', { count: results.length })].filter(Boolean).join(' ') : `${t('noLocations')} ${t('checkSpelling')}`)
     : ''
   const today = new Date()
   // Use local calendar values to avoid shifting the date across time zones.
@@ -130,6 +139,7 @@ export default function SearchForm({ onSearch, isLoading, mode }: SearchFormProp
               setSelectedLocation(null)
               if (event.target.value.trim() !== query || selectedLocation) {
                 setResults([])
+                setCorrection(null)
                 setStatus('idle')
                 setActiveIndex(-1)
               }
