@@ -2,6 +2,12 @@ export type Language = 'en' | 'es'
 export const locales: Record<Language, string> = { en: 'en', es: 'es-CL' }
 
 const en = {
+  shareSky: 'Share this sky',
+  shareCopied: 'Link copied',
+  shareError: "Couldn't share. You can copy the link from your address bar.",
+  shareSingle: 'How was the sky in {place} on {date}?',
+  shareBirthday: 'I looked back at my birthdays in {place} since {year}.',
+  shareYears: 'See how the sky changed through the years.',
   didYouMean: 'Did you mean {city}?',
   noLocations: 'No locations found.',
   checkSpelling: 'Try checking the spelling.',
@@ -119,6 +125,12 @@ export type TranslationKey = keyof typeof en
 export type Translator = (key: TranslationKey, values?: Record<string, string | number>) => string
 
 const es: Record<TranslationKey, string> = {
+  shareSky: 'Compartir este cielo',
+  shareCopied: 'Enlace copiado',
+  shareError: 'No se pudo compartir. Puedes copiar el enlace de la barra de direcciones.',
+  shareSingle: '¿Cómo estaba el cielo en {place} el {date}?',
+  shareBirthday: 'Recorrí mis cumpleaños en {place} desde {year}.',
+  shareYears: 'Mira cómo estuvo el cielo a través de los años.',
   didYouMean: '¿Quisiste decir {city}?',
   noLocations: 'No encontramos ubicaciones.',
   checkSpelling: 'Prueba revisando cómo está escrito.',

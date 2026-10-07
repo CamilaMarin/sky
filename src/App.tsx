@@ -1,3 +1,6 @@
+import ShareButton from './components/ShareButton'
+import { buildSingleDayShareContent, buildBirthdayShareContent } from './utils/shareContent'
+import type { ShareContent } from './utils/shareContent'
 import { parseWeatherQuery, serializeWeatherQuery, weatherQueryUrl } from './utils/shareableUrl'
 import { restoreLocation } from './types/shareableWeatherQuery'
 import type { ShareableWeatherQuery } from './types/shareableWeatherQuery'
@@ -21,12 +24,12 @@ import type { HistoricalWeather } from './types/weather'
 
 type WeatherState =
   | { status: 'idle' | 'loading' }
-  | { status: 'success'; kind: 'single'; weather: HistoricalWeather; location: Location }
-  | { status: 'success'; kind: 'recurring'; result: RecurringWeatherResult; stats: RecurringWeatherStats; location: Location }
+  | { status: 'success'; kind: 'single'; weather: HistoricalWeather; location: Location; query: ShareableWeatherQuery | null }
+  | { status: 'success'; kind: 'recurring'; result: RecurringWeatherResult; stats: RecurringWeatherStats; location: Location; query: ShareableWeatherQuery | null }
   | { status: 'error'; message: TranslationKey }
 
 export default function App() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [initial] = useState(() => parseWeatherQuery(window.location.search))
   const initialQuery = initial.status === 'valid' ? initial.query : undefined
   const [mode, setMode] = useState<SearchMode>(initialQuery?.mode === 'birthday' ? 'recurring' : 'single')
@@ -57,7 +60,7 @@ export default function App() {
         const result = await getRecurringWeather({ latitude: location.latitude, longitude: location.longitude,
           timezone: location.timezone || 'auto', startYear, month, day }, controller.signal)
         if (!controller.signal.aborted) {
-          setState({ status: 'success', kind: 'recurring', result, stats: getRecurringWeatherStats(result), location })
+          setState({ status: 'success', kind: 'recurring', result, stats: getRecurringWeatherStats(result), location, query: shareable })
           syncUrl()
         }
         return
@@ -67,7 +70,7 @@ export default function App() {
         timezone: location.timezone || 'auto',
       }, controller.signal)
       if (!controller.signal.aborted) {
-        setState({ status: 'success', kind: 'single', weather, location })
+        setState({ status: 'success', kind: 'single', weather, location, query: shareable })
         syncUrl()
       }
     } catch (error) {
@@ -92,6 +95,15 @@ export default function App() {
     }, 0)
     return () => { window.clearTimeout(timer); request.current?.abort() }
   }, [initial, handleSearch])
+  let shareContent: ShareContent | null = null
+  if (state.status === 'success' && state.query) {
+    try {
+      shareContent = state.kind === 'single'
+        ? buildSingleDayShareContent(state.query, state.weather, language, window.location.href)
+        : buildBirthdayShareContent(state.query, language, window.location.href)
+    } catch { /* Do not offer sharing for a query that is no longer valid. */ }
+  }
+  const shareAction = shareContent ? <ShareButton key={`${shareContent.url}:${language}`} content={shareContent} /> : undefined
   const theme = state.status === 'success' && state.kind === 'single' ? getWeatherTheme(state.weather.weatherCode) : 'neutral'
   return (
     <div className="page" data-weather={theme}>
@@ -126,8 +138,8 @@ export default function App() {
         <p role="alert" className="weather-error">{state.status === 'error' ? t(state.message) : ''}</p>
         <section aria-label={t('result')} aria-busy={state.status === 'loading'}>
           {state.status === 'success' && (state.kind === 'single'
-            ? <WeatherCard weather={state.weather} location={state.location} />
-            : <RecurringWeather result={state.result} stats={state.stats} location={state.location} />)}
+            ? <WeatherCard actions={shareAction} weather={state.weather} location={state.location} />
+            : <RecurringWeather actions={shareAction} result={state.result} stats={state.stats} location={state.location} />)}
         </section>
         <p className="memory-note">{t('memory')}</p>
       </main>

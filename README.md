@@ -261,8 +261,7 @@ Los nombres locales no cambian con el idioma; Open-Meteo sigue recibiendo EN/ES.
 ## Shareable URLs
 
 Una consulta exitosa actualiza la URL sin recargar la página. Se puede copiar desde
-la barra del navegador y abrir en otra pestaña o navegador. No requiere backend,
-router, permisos de clipboard ni botón de compartir.
+la barra del navegador y abrir en otra pestaña o navegador. No requiere backend ni router.
 
 Ejemplo (después del path actual de la aplicación):
 
@@ -350,3 +349,61 @@ Se comprobó refresh de Pudahuel y limpieza de una fecha imposible preservando U
 También se comprobó Back/Forward entre páginas y cambio EN/ES conservando el resultado.
 La reapertura bisiesta recibió un error transitorio del proveedor; el reintento desde el
 formulario restaurado mostró correctamente los siete años bisiestos 2000–2024.
+
+
+## Share Result
+
+Cada resultado válido y compartible incluye un único botón «Share this sky» /
+«Compartir este cielo» en su encabezado. No aparece en idle, loading, error ni
+cuando falta una query válida. Birthday admite años sin datos.
+
+- `App` conserva la query junto al resultado exitoso. `shareContent.ts` genera
+  title/text/url usando `weatherQueryUrl`, conservando base path, encoding y
+  parámetros externos; no confía en que la barra de direcciones coincida con el
+  resultado. Editar el formulario no cambia lo compartido hasta una nueva consulta.
+- `ShareButton` solo conoce el payload. WeatherCard y RecurringWeather aceptan un
+  slot de acciones; no contienen lógica de APIs de compartir.
+- Single Day incluye lugar, fecha localizada, condición traducida y temperatura
+  protagonista (media → máxima → mínima), compartiendo esa selección con WeatherCard.
+  Si todas las temperaturas son null, se omite la temperatura, sin «Not available».
+- Birthday incluye lugar y año inicial, seguido de una invitación breve a recorrer
+  los años. No incluye listas ni estadísticas. El title usa el título traducido de
+  la aplicación; los textos y números respetan EN/ES.
+- Solo un clic o activación por teclado llama a `shareResult`. Se detecta
+  `navigator.share` por capacidad, sin user-agent sniffing. Si no existe, se copia
+  texto contextual + línea en blanco + URL mediante `navigator.clipboard.writeText`.
+- `AbortError` se trata como cancelación normal: sin error y sin copiar. Otros
+  errores de Web Share intentan clipboard. Si clipboard falta o falla, se muestra
+  un mensaje traducido que sugiere copiar la dirección manualmente. No se usa
+  `execCommand`, no se mueve el foco y no se muestran errores técnicos.
+- El botón bloquea activaciones simultáneas. «Enlace copiado» se anuncia mediante
+  `role=status`/`aria-live=polite` durante cuatro segundos; los errores permanecen
+  hasta otro intento. El temporizador se limpia al desmontar y las promesas tardías
+  no actualizan un componente desmontado. El icono es decorativo y el target mide
+  al menos 44 px de alto, con focus visible.
+
+Las APIs pueden depender de HTTPS, permisos y activación del usuario; el fallback
+puede ser rechazado por el navegador después de un fallo de Web Share. El error se
+maneja sin afectar el resultado. Referencias: [Web Share](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share)
+y [Clipboard](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText).
+Las URLs siguen representando consultas reproducibles: no se almacenan resultados
+en un servidor, no se crean imágenes ni se usan servicios de terceros para compartir.
+
+### Validación de Share Result
+
+Los tests de `shareResult.test.mjs` verifican contenido EN/ES, fechas, Unicode,
+condición, temperatura principal/fallback/cero/null, Birthday, URL canónica frente
+a una dirección obsoleta y todos los resultados de las APIs (éxito, cancelación,
+fallback, errores y ausencia). No se incorporó un framework de tests de componentes.
+
+Se comprobaron en navegador Pudahuel y Ñuñoa (Single Day, 17/07/1994), Pudahuel
+(Birthday desde 17/07/1994) y Ñuñoa (Birthday desde 29/02/2000). Se verificaron
+texto/URL, teclado, un solo botón, feedback y expiración con instrumentación
+temporal retirada al terminar. El clipboard real funcionó al desactivar Web Share
+para forzar el fallback. Los escenarios de cancelación, éxito nativo y errores se
+verificaron con APIs simuladas; el navegador integrado dejó pendiente su share
+sheet nativo, por lo que no se confirma su flujo visual real en móvil.
+
+Se revisaron ambos modos e idiomas a 320, 375, 768, 1024 y 1440 px: sin overflow
+horizontal y con target de 44 px. Validación final: 40 tests aprobados,
+`npm run build` y `git diff --check` correctos. No hay script de lint.

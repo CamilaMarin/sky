@@ -1,3 +1,9 @@
+import type { HistoricalWeather } from '../types/weather'
+
+export function mainTemperature(weather: Pick<HistoricalWeather, 'temperatureMean' | 'temperatureMax' | 'temperatureMin'>): number | null {
+  return weather.temperatureMean ?? weather.temperatureMax ?? weather.temperatureMin
+}
+
 export function formatSunshine(seconds: number | null, unavailable: string): string {
   if (seconds === null) return unavailable
   const minutes = Math.round(seconds / 60)

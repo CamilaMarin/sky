@@ -1,21 +1,23 @@
+import type { ReactNode } from 'react'
 import { useLanguage } from '../i18n/LanguageContext'
 import WeatherIcon from './WeatherIcon'
 import { getWeatherTheme } from '../utils/weatherTheme'
 import type { Location } from '../types/location'
 import type { HistoricalWeather } from '../types/weather'
 import { getWeatherDescriptionKey } from '../utils/weatherCodes'
-import { formatLocalTime, formatMeasurement, formatSunshine, formatWeatherDate } from '../utils/weatherFormatting'
+import { mainTemperature, formatLocalTime, formatMeasurement, formatSunshine, formatWeatherDate } from '../utils/weatherFormatting'
 
 interface WeatherCardProps {
   weather: HistoricalWeather
   location: Location
+  actions?: ReactNode
 }
 
-export default function WeatherCard({ weather, location }: WeatherCardProps) {
+export default function WeatherCard({ weather, location, actions }: WeatherCardProps) {
   const { t, locale } = useLanguage()
   const unavailable = t('notAvailable')
   const measure = (value: number | null, unit: string) => formatMeasurement(value, unit, locale, unavailable)
-  const temperature = weather.temperatureMean ?? weather.temperatureMax ?? weather.temperatureMin
+  const temperature = mainTemperature(weather)
   const temperatureLabel = weather.temperatureMean !== null ? t('mean')
     : weather.temperatureMax !== null ? t('highMain') : weather.temperatureMin !== null ? t('lowMain') : t('temperature')
   const measurements = [
@@ -31,6 +33,7 @@ export default function WeatherCard({ weather, location }: WeatherCardProps) {
         <p className="weather-place">{[location.admin1, location.country ?? location.country_code].filter(Boolean).join(', ')}</p>
         <WeatherIcon theme={getWeatherTheme(weather.weatherCode)} />
         <p className="weather-condition">{t(getWeatherDescriptionKey(weather.weatherCode))}</p>
+        {actions}
       </header>
       <dl className="temperature-main">
         <dt>{temperatureLabel}</dt>
