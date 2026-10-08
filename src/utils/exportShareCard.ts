@@ -2,10 +2,12 @@ export const SHARE_CARD_WIDTH = 1080
 export const SHARE_CARD_HEIGHT = 1350
 
 /** Re-layout the existing composition before rasterizing, independently of preview/DPR. */
-export async function createShareCardPng(frame: HTMLElement): Promise<Blob> {
+export async function createShareCardPng(frame: HTMLElement, signal?: AbortSignal): Promise<Blob> {
+  signal?.throwIfAborted()
   const copy = frame.cloneNode(true) as HTMLElement
   const { toBlob } = await import('html-to-image')
   await document.fonts?.ready
+  signal?.throwIfAborted()
   const host = document.createElement('div')
   host.setAttribute('aria-hidden', 'true')
   host.inert = true
@@ -25,6 +27,7 @@ export async function createShareCardPng(frame: HTMLElement): Promise<Blob> {
       // Current cards use system fonts exclusively; no remote font CSS is needed.
       skipFonts: true,
     })
+    signal?.throwIfAborted()
     if (!blob || blob.type !== 'image/png') throw new Error('PNG generation failed')
     const header = new DataView(await blob.slice(0, 24).arrayBuffer())
     if (header.byteLength < 24 || header.getUint32(16) !== SHARE_CARD_WIDTH || header.getUint32(20) !== SHARE_CARD_HEIGHT) {

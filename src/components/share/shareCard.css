@@ -55,3 +55,6 @@
 .share-card-export-actions { margin-top: 16px; }
 .share-card-export-actions button { margin: 0; background: #36576a; color: #fff; border-color: #36576a; }
 .share-card-export-actions p { min-height: 1.5em; margin: 8px 0 0; font-size: 13px; color: #506471; }
+.share-card-export-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.share-card-export-buttons button { flex: 1 1 170px; width: auto; }
+.share-card-export-buttons button + button { color: #36576a; background: transparent; }

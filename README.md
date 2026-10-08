@@ -541,3 +541,33 @@ Safari real sigue pendiente de validación: la estrategia utiliza APIs estables,
 pero la compatibilidad de foreignObject debe comprobarse en el navegador objetivo.
 El feedback de descarga confirma que se inició la descarga, no que el usuario
 haya terminado de guardar el archivo en disco.
+
+### Compartir la imagen de la tarjeta
+
+El preview ofrece **Compartir imagen / Share image** cuando el navegador admite
+Web Share API con archivos. Se comparte un `File` de tipo `image/png`, de
+1080 × 1350 px, generado localmente. El payload contiene únicamente `files` y
+el título «How Was the Sky?», sin texto ni URL que puedan competir con la imagen.
+No hay subidas a un servidor ni dependencias nuevas.
+
+Al abrir el diálogo se prepara una sola imagen, con html-to-image todavía cargado
+bajo demanda. Compartir y Guardar reutilizan el mismo archivo. Las dos acciones
+permanecen deshabilitadas durante la preparación; si falla, se ofrece Reintentar.
+La caché vive solo durante el preview y se invalida al cerrar, desmontar o cambiar
+contenido, idioma o filename. Las capturas se serializan incluso entre previews.
+La invalidación aborta antes del render cuando es posible; si html-to-image ya está
+renderizando, se espera su finalización y se descarta el resultado obsoleto.
+
+El clic en Compartir comprueba `canShare({ files })` y llama a `share()`
+inmediatamente con el archivo preparado: no espera imports, fuentes ni generación
+dentro del clic, para conservar la activación transitoria requerida por el navegador.
+Cancelar (`AbortError`) no descarga ni copia nada. Otros errores se anuncian y
+permiten reintentar; Guardar imagen sigue siendo una alternativa explícita.
+Sin soporte se oculta Compartir imagen. Compartir enlaces permanece independiente.
+
+No hay compatibilidad universal: depende del navegador, sistema operativo,
+contexto seguro, políticas de permisos y aplicaciones de destino. Las pruebas con
+APIs simuladas verificaron éxito, cancelación, error, falta de soporte, activación
+vigente, MIME, dimensiones y reutilización del mismo File. No equivalen a una
+transferencia mediante el panel nativo de Safari o Chrome; esa comprobación real
+sigue pendiente.
